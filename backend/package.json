@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "node server.js",
     "dev": "nodemon src/server.ts",
-    "build": "tsc",
+    "build": "echo 'No build needed - using plain JavaScript'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -21,9 +21,7 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "multer": "^2.0.1",
-    "openai": "^4.104.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "openai": "^4.104.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -31,6 +29,8 @@
     "@types/helmet": "^0.0.48",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.0.10",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
