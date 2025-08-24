@@ -829,7 +829,9 @@ Extract and return STRICT JSON with these keys (omit unknown):
   maxPriceINR?: number                 // integer rupees
   query?: string
 Rules:
-- Convert crore/lakh/lac to rupees.
+- Convert crore/lakh/lac to rupees (1 Cr = 10000000, 1 Lakh = 100000)
+- Extract BHK from text like "2bhk", "3 BHK", "4bhk" as numbers
+- For city, use simple names like "Pune", "Mumbai", "Bangalore"
 - Output JSON ONLY.`;
 
         const chat = await openai.chat.completions.create({
@@ -845,6 +847,9 @@ Rules:
         const content = chat.choices?.[0]?.message?.content || '{}';
         let parsed = {};
         try { parsed = JSON.parse(content); } catch {}
+        
+        // Debug logging
+        console.log('AI Chat - Parsed response:', parsed);
 
         // Normalize numeric prices if expressed in strings
         const normalize = (v) => typeof v === 'string' ? Number(v.replace(/[^0-9.]/g, '')) : v;
@@ -874,27 +879,59 @@ Rules:
 
         const hasPropertyRequirements = Boolean(propertyIntent && searchFilters.city && (searchFilters.minPrice || searchFilters.maxPrice) && typeof bhk === 'number');
         const hasProjectRequirements = Boolean(projectIntent && searchFilters.city);
+        
+        // Debug logging
+        console.log('AI Chat - Search filters:', searchFilters);
+        console.log('AI Chat - BHK:', bhk, 'Listing type:', listingType);
+        console.log('AI Chat - Has property requirements:', hasPropertyRequirements);
 
         let results = [];
         let projectResults = [];
         if (hasPropertyRequirements) {
-            // Perform property search
-            let q = exports.supabase.from('properties').select('*');
-            if (searchFilters.type) {
-                q = q.eq('type', searchFilters.type);
-            }
-            if (typeof searchFilters.minPrice === 'number') {
-                q = q.gte('price', searchFilters.minPrice);
-            }
-            if (typeof searchFilters.maxPrice === 'number') {
-                q = q.lte('price', searchFilters.maxPrice);
-            }
-            if (searchFilters.city) {
-                q = q.contains('location', { city: searchFilters.city });
-            }
-            const { data, error } = await q.limit(10);
+            // Perform property search - get all properties first, then filter
+            const { data, error } = await exports.supabase.from('properties').select('*').limit(50);
             if (!error) {
                 results = data || [];
+                
+                // Apply filters in JavaScript for better control
+                if (searchFilters.type) {
+                    results = results.filter(p => (p.type || '').toLowerCase() === String(searchFilters.type).toLowerCase());
+                }
+                
+                // Filter by city (case-insensitive, partial match)
+                if (searchFilters.city) {
+                    const cityLower = String(searchFilters.city).toLowerCase();
+                    results = results.filter(p => {
+                        const propertyCity = (p.location?.city || '').toLowerCase();
+                        return propertyCity.includes(cityLower) || cityLower.includes(propertyCity);
+                    });
+                }
+                
+                // Filter by listing type (sale/rent)
+                if (listingType) {
+                    results = results.filter(p => (p.listingType || '').toLowerCase() === listingType);
+                }
+                
+                // Filter by BHK (bedrooms field)
+                if (typeof bhk === 'number') {
+                    results = results.filter(p => Number(p.bedrooms || 0) === bhk);
+                }
+                
+                // Filter by price - use correct field based on listing type
+                if (typeof searchFilters.minPrice === 'number' || typeof searchFilters.maxPrice === 'number') {
+                    results = results.filter(p => {
+                        const amount = listingType === 'rent' ? Number(p.rentAmount || 0) : Number(p.price || 0);
+                        if (typeof searchFilters.minPrice === 'number' && amount < searchFilters.minPrice) return false;
+                        if (typeof searchFilters.maxPrice === 'number' && amount > searchFilters.maxPrice) return false;
+                        return true;
+                    });
+                }
+            }
+            
+            // Debug logging
+            console.log('AI Chat - Found properties:', results.length);
+            if (results.length > 0) {
+                console.log('AI Chat - Sample property:', results[0]);
             }
         }
         if (hasProjectRequirements) {
