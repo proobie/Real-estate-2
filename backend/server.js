@@ -22,6 +22,7 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const supabase_js_1 = require("@supabase/supabase-js");
 const dotenv_1 = __importDefault(require("dotenv"));
+const OpenAI = require("openai");
 dotenv_1.default.config();
 /** @type {import('express').Express} */
 const app = (0, express_1.default)();
@@ -29,6 +30,10 @@ const PORT = process.env.PORT || 5000;
 const supabaseUrl = 'https://vlboszmxhmamsviufucv.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY || '';
 exports.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
+
+// --- OpenAI setup (optional) ---
+const openaiApiKey = (process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '').toString().trim();
+const openai = openaiApiKey ? new OpenAI({ apiKey: openaiApiKey }) : null;
 function uploadToSupabaseStorage(file_1) {
     return __awaiter(this, arguments, void 0, function* (file, folder = '') {
         const path = require('path');
@@ -801,6 +806,145 @@ app.delete('/api/roles/:id', async (req, res) => {
     if (error) { res.status(500).json({ error: error.message }); return; }
     res.status(204).send();
 });
+
+// AI chat endpoint: extracts filters from conversation, performs search, returns response + natural reply
+app.post('/api/ai/chat', async (req, res) => {
+    try {
+        if (!openai) { res.status(500).json({ error: 'AI not configured' }); return; }
+        const { messages } = req.body || {};
+        if (!Array.isArray(messages)) { res.status(400).json({ error: 'messages array required' }); return; }
+
+        const systemPrompt = `You are Lotlite's AI assistant. Help with ONLY property or project related queries.
+If the user requests anything unrelated, politely say you can answer property/project questions and offer to connect to a human: +91 9146205267.
+If asked to talk to a human, include in 'reply' the phone number +91 9146205267.
+Do not refuse to show listings. If information is insufficient, ask concise follow-ups. Only suggest calling a human when no results match or the user requests a human.
+Extract and return STRICT JSON with these keys (omit unknown):
+  reply: string                       // friendly response or next step
+  category?: "property" | "project"   // user's intent
+  type?: string                        // for property, e.g., "Apartment"
+  listingType?: "sale" | "rent"        // for property
+  bhk?: number                         // bedrooms for property (e.g., 2,3,4)
+  city?: string
+  minPriceINR?: number                 // integer rupees (1 Cr=10000000, 90 Lacs=9000000)
+  maxPriceINR?: number                 // integer rupees
+  query?: string
+Rules:
+- Convert crore/lakh/lac to rupees.
+- Output JSON ONLY.`;
+
+        const chat = await openai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+                { role: 'system', content: systemPrompt },
+                ...messages.map((m) => ({ role: m.role, content: String(m.content || '') }))
+            ],
+            temperature: 0.2,
+            response_format: { type: 'json_object' }
+        });
+
+        const content = chat.choices?.[0]?.message?.content || '{}';
+        let parsed = {};
+        try { parsed = JSON.parse(content); } catch {}
+
+        // Normalize numeric prices if expressed in strings
+        const normalize = (v) => typeof v === 'string' ? Number(v.replace(/[^0-9.]/g, '')) : v;
+        const searchFilters = {
+            query: parsed.query,
+            type: parsed.type,
+            city: parsed.city,
+            minPrice: typeof parsed.minPriceINR === 'number' ? parsed.minPriceINR : normalize(parsed.minPrice),
+            maxPrice: typeof parsed.maxPriceINR === 'number' ? parsed.maxPriceINR : normalize(parsed.maxPrice),
+        };
+
+        // Infer listing type (sale/rent) from model output or query text
+        let listingType = undefined;
+        const qLower = String(parsed.query || '').toLowerCase();
+        if (typeof parsed.listingType === 'string') {
+            const lt = String(parsed.listingType).toLowerCase();
+            listingType = lt.includes('rent') ? 'rent' : (lt.includes('buy') || lt.includes('sale') ? 'sale' : undefined);
+        } else if (qLower.includes('rent')) {
+            listingType = 'rent';
+        } else if (qLower.includes('buy') || qLower.includes('sale')) {
+            listingType = 'sale';
+        }
+        const bhk = typeof parsed.bhk === 'number' ? parsed.bhk : undefined;
+        const category = String(parsed.category || '').toLowerCase();
+        const propertyIntent = category === 'property' || listingType != null || /apartment|flat/i.test(String(parsed.type || ''));
+        const projectIntent = category === 'project' || /project/i.test(qLower);
+
+        const hasPropertyRequirements = Boolean(propertyIntent && searchFilters.city && (searchFilters.minPrice || searchFilters.maxPrice) && typeof bhk === 'number');
+        const hasProjectRequirements = Boolean(projectIntent && searchFilters.city);
+
+        let results = [];
+        let projectResults = [];
+        if (hasPropertyRequirements) {
+            // Perform property search
+            let q = exports.supabase.from('properties').select('*');
+            if (searchFilters.type) {
+                q = q.eq('type', searchFilters.type);
+            }
+            if (typeof searchFilters.minPrice === 'number') {
+                q = q.gte('price', searchFilters.minPrice);
+            }
+            if (typeof searchFilters.maxPrice === 'number') {
+                q = q.lte('price', searchFilters.maxPrice);
+            }
+            if (searchFilters.city) {
+                q = q.contains('location', { city: searchFilters.city });
+            }
+            const { data, error } = await q.limit(10);
+            if (!error) {
+                results = data || [];
+            }
+        }
+        if (hasProjectRequirements) {
+            // Perform project search
+            let q = exports.supabase.from('projects').select('*');
+            if (searchFilters.city) {
+                q = q.contains('location', { city: searchFilters.city });
+            }
+            const { data, error } = await q.limit(10);
+            if (!error) {
+                projectResults = data || [];
+            }
+        }
+
+        let reply = parsed.reply || 'I can help you find properties or projects. What are you looking for?';
+        const parts = [];
+        if (searchFilters.city) parts.push(searchFilters.city);
+        if (searchFilters.type) parts.push(searchFilters.type);
+        if (typeof bhk === 'number') parts.push(`${bhk} BHK`);
+        if (listingType) parts.push(listingType);
+
+        if (hasPropertyRequirements || hasProjectRequirements) {
+            reply = parts.length > 0 ? `Searching for ${parts.join(' ')}. Please hold on for a moment.` : `Searching...`;
+            if (results.length > 0 || projectResults.length > 0) {
+                // Replace searching text with results intro
+                reply = parts.length > 0 ? `Here are some options for ${parts.join(' ')}.` : `Here are some options I found.`;
+            } else if (results.length === 0 && projectResults.length === 0) {
+                reply = `I couldn't find exact matches yet. You can adjust type, city, BHK, or budget.`;
+            }
+        } else {
+            if (propertyIntent) {
+                // Ask only for what is missing
+                const needs = [];
+                if (!searchFilters.city) needs.push('city');
+                if (!(searchFilters.minPrice || searchFilters.maxPrice)) needs.push('budget');
+                if (typeof bhk !== 'number') needs.push('BHK (2/3/4)');
+                reply = `Got it! Please share ${needs.join(', ')} to continue.`;
+            } else if (projectIntent) {
+                reply = `Great! Which city/area are you interested in for projects?`;
+            } else {
+                reply = `I can help with apartments (buy/rent) or projects. Start with 'Buy apartments', 'Rent apartments' or 'Browse projects'.`;
+            }
+        }
+
+        res.json({ reply, filters: searchFilters, propertyResults: results, projectResults });
+    } catch (e) {
+        res.status(500).json({ error: e.message || 'AI chat failed' });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Backend server running on http://localhost:${PORT}`);
