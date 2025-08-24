@@ -884,6 +884,8 @@ Rules:
         console.log('AI Chat - Search filters:', searchFilters);
         console.log('AI Chat - BHK:', bhk, 'Listing type:', listingType);
         console.log('AI Chat - Has property requirements:', hasPropertyRequirements);
+        console.log('AI Chat - Has project requirements:', hasProjectRequirements);
+        console.log('AI Chat - Project intent:', projectIntent);
 
         let results = [];
         let projectResults = [];
@@ -935,14 +937,31 @@ Rules:
             }
         }
         if (hasProjectRequirements) {
-            // Perform project search
-            let q = exports.supabase.from('projects').select('*');
-            if (searchFilters.city) {
-                q = q.contains('location', { city: searchFilters.city });
-            }
-            const { data, error } = await q.limit(10);
+            // Perform project search - get all projects first, then filter
+            const { data, error } = await exports.supabase.from('projects').select('*').limit(50);
             if (!error) {
                 projectResults = data || [];
+                
+                // Debug logging - show all projects
+                console.log('AI Chat - Total projects in database:', projectResults.length);
+                if (projectResults.length > 0) {
+                    console.log('AI Chat - All project cities:', projectResults.map(p => p.location?.city).filter(Boolean));
+                }
+                
+                // Apply filters in JavaScript for better control
+                if (searchFilters.city) {
+                    const cityLower = String(searchFilters.city).toLowerCase();
+                    projectResults = projectResults.filter(p => {
+                        const projectCity = (p.location?.city || '').toLowerCase();
+                        return projectCity.includes(cityLower) || cityLower.includes(projectCity);
+                    });
+                }
+                
+                // Debug logging
+                console.log('AI Chat - Found projects:', projectResults.length);
+                if (projectResults.length > 0) {
+                    console.log('AI Chat - Sample project:', projectResults[0]);
+                }
             }
         }
 
