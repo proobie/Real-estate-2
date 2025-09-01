@@ -291,11 +291,11 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
         <div className="md:hidden fixed inset-0 z-[60]">
           {/* Overlay */}
           <div
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-black/40 transition-opacity duration-300"
             onClick={() => setIsMenuOpen(false)}
           />
           {/* Drawer */}
-          <div className="absolute right-0 top-0 h-full w-full bg-white shadow-2xl flex flex-col">
+          <div className="absolute bottom-0 left-0 right-0 h-full bg-gray-50 shadow-2xl flex flex-col transform transition-transform duration-300 ease-out animate-slide-up">
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-2">
@@ -340,7 +340,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
               {/* Action Cards */}
               <div className="px-3 space-y-3">
                 <button onClick={goFeaturedProperties} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
-                  <div>
+                  <div className="text-left">
                     <div className="text-base font-semibold text-gray-900">Featured Properties</div>
                     <div className="text-xs text-gray-500">Handpicked homes for you</div>
                   </div>
@@ -349,7 +349,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                   </div>
                 </button>
                 <button onClick={goBuy} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
-                  <div>
+                  <div className="text-left">
                     <div className="text-base font-semibold text-gray-900">Buy</div>
                     <div className="text-xs text-gray-500">Find properties for sale</div>
                   </div>
@@ -358,7 +358,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                   </div>
                 </button>
                 <button onClick={goRent} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
-                  <div>
+                  <div className="text-left">
                     <div className="text-base font-semibold text-gray-900">Rent</div>
                     <div className="text-xs text-gray-500">Explore rental homes</div>
                   </div>
@@ -367,7 +367,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                   </div>
                 </button>
                 <button onClick={handleNewProjectsClick} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
-                  <div>
+                  <div className="text-left">
                     <div className="text-base font-semibold text-gray-900">New Projects</div>
                     <div className="text-xs text-gray-500">Upcoming and ongoing</div>
                   </div>
@@ -376,7 +376,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                   </div>
                 </button>
                 <button onClick={() => navigate('/search')} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
-                  <div>
+                  <div className="text-left">
                     <div className="text-base font-semibold text-gray-900">Search Properties</div>
                     <div className="text-xs text-gray-500">Filter by budget, type, location</div>
                   </div>
@@ -385,7 +385,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                   </div>
                 </button>
                 <button onClick={goServices} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
-                  <div>
+                  <div className="text-left">
                     <div className="text-base font-semibold text-gray-900">Services</div>
                     <div className="text-xs text-gray-500">Home loans, legal, more</div>
                   </div>
@@ -394,7 +394,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                   </div>
                 </button>
                 <button onClick={goTestimonials} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
-                  <div>
+                  <div className="text-left">
                     <div className="text-base font-semibold text-gray-900">Testimonials</div>
                     <div className="text-xs text-gray-500">What customers say</div>
                   </div>

@@ -24,6 +24,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const supabaseUrl = 'https://vlboszmxhmamsviufucv.supabase.co';
+
+
 // Accept common env var names and trim whitespace/quotes
 let supabaseKey = (process.env.SUPABASE_SERVICE_KEY
   || process.env.SUPABASE_SERVICE_ROLE_KEY

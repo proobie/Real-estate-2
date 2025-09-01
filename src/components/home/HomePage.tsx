@@ -6,7 +6,7 @@ import FeaturedProjects from '../projects/FeaturedProjects';
 import ServiceSection from '../common/ServiceSection';
 import TestimonialSection from '../common/TestimonialSection';
 import Footer from '../common/Footer';
-import MobileBottomNav from '../common/MobileBottomNav';
+
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Project } from '../../types';
 
@@ -48,7 +48,6 @@ const HomePage: React.FC = () => {
       <div className="hidden md:block">
         <Footer />
       </div>
-      <MobileBottomNav />
     </div>
   );
 };

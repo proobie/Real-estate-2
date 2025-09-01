@@ -22,6 +22,7 @@ import { ProjectProvider } from './contexts/ProjectContext';
 import WhatsAppWidget from './components/common/WhatsAppWidget';
 import ChatAssistant from './components/common/ChatAssistant';
 import ProjectsList from './components/projects/ProjectsList';
+import MobileBottomNav from './components/common/MobileBottomNav';
 
 const EmployeeDashboard = () => <div>Employee Dashboard (Coming Soon)</div>;
 const ClientDashboard = () => <div>Client Dashboard (Coming Soon)</div>;
@@ -122,6 +123,7 @@ function App() {
             </Routes>
             <WhatsAppWidget />
             <ChatAssistant />
+            <MobileBottomNav />
           </BrowserRouter>
         </ProjectProvider>
       </PropertyProvider>

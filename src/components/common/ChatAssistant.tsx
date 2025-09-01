@@ -170,7 +170,7 @@ export default function ChatAssistant() {
   return (
     <div className="fixed bottom-28 right-6 sm:bottom-32 sm:right-8 z-[1000] flex flex-col items-end gap-3">
       {isOpen && (
-        <div className="w-[360px] sm:w-[380px] rounded-2xl shadow-2xl border border-gray-200 overflow-hidden bg-white">
+        <div className="md:w-[360px] md:sm:w-[380px] w-full h-full md:h-auto md:rounded-2xl shadow-2xl border border-gray-200 overflow-hidden bg-white fixed inset-0 md:relative md:inset-auto z-[1001]">
           <div className="flex items-center justify-between px-3 py-2 bg-[#0d47a1] text-white">
             <div className="flex items-center gap-2">
               <FaRobot className="w-5 h-5" />
@@ -183,7 +183,7 @@ export default function ChatAssistant() {
               <FaTimes className="w-4 h-4" />
             </button>
           </div>
-          <div ref={scrollRef} className="max-h-[60vh] overflow-y-auto p-3 space-y-2 bg-gray-50">
+          <div ref={scrollRef} className="md:max-h-[60vh] h-full md:h-auto overflow-y-auto p-3 space-y-2 bg-gray-50 pb-20 md:pb-3">
             {messages.map(m => (
               <div key={m.id} className={m.from === 'bot' ? 'text-left' : 'text-right'}>
                 <span className={m.from === 'bot' ? 'inline-block bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm' : 'inline-block bg-[#0d47a1] text-white rounded-xl px-3 py-2 text-sm'}>
@@ -208,7 +208,7 @@ export default function ChatAssistant() {
                   <div className="">
                     <div className="text-xs text-gray-500 mb-1">Popular locations:</div>
                     <div className="flex flex-wrap gap-2">
-                      {['Pune','Hinjewadi','Chattarpur','Noida'].map(loc => (
+                      {['Pune', 'Hinjewadi', 'Chattarpur', 'Noida'].map(loc => (
                         <button key={loc} onClick={() => chooseCity(loc)} className="px-3 py-1.5 text-sm rounded-full border bg-white hover:bg-gray-100">{loc}</button>
                       ))}
                     </div>
@@ -238,10 +238,10 @@ export default function ChatAssistant() {
                     </div>
                     {/* Refinement chips */}
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {[2,3,4].map(n => (
+                      {[2, 3, 4].map(n => (
                         <button key={n} onClick={() => refineBhk(n)} className="px-3 py-1.5 text-xs rounded-full border bg-white hover:bg-gray-100">{n} BHK</button>
                       ))}
-                      {['30-60 Lacs','60-90 Lacs','90 Lacs - 1.2 Cr','1.2 - 2 Cr'].map(r => (
+                      {['30-60 Lacs', '60-90 Lacs', '90 Lacs - 1.2 Cr', '1.2 - 2 Cr'].map(r => (
                         <button key={r} onClick={() => refineBudget(r)} className="px-3 py-1.5 text-xs rounded-full border bg-white hover:bg-gray-100">{r}</button>
                       ))}
                       <button onClick={() => toggleListing(mode === 'rent' ? 'sale' : 'rent')} className="px-3 py-1.5 text-xs rounded-full border bg-white hover:bg-gray-100">{mode === 'rent' ? 'Switch to Buy' : 'Switch to Rent'}</button>
@@ -264,7 +264,7 @@ export default function ChatAssistant() {
                     </div>
                     {/* Refinement chips for projects */}
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {['Under 80 Lacs','80 Lacs - 1.2 Cr','1.2 - 2 Cr'].map(r => (
+                      {['Under 80 Lacs', '80 Lacs - 1.2 Cr', '1.2 - 2 Cr'].map(r => (
                         <button key={r} onClick={() => refineBudget(r)} className="px-3 py-1.5 text-xs rounded-full border bg-white hover:bg-gray-100">{r}</button>
                       ))}
                     </div>
@@ -296,7 +296,7 @@ export default function ChatAssistant() {
               </div>
             )}
           </div>
-          <form onSubmit={onSubmit} className="flex items-center gap-2 p-2 border-t bg-white">
+          <form onSubmit={onSubmit} className="flex items-center gap-2 p-2 border-t bg-white md:relative absolute bottom-0 left-0 right-0">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
