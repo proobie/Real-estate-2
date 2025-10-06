@@ -16,7 +16,7 @@ if (!process.env.SUPABASE_SERVICE_KEY) {
   try {
     const rootEnvPath = path.resolve(__dirname, '../../.env');
     dotenv.config({ path: rootEnvPath });
-  } catch {}
+  } catch { }
 }
 
 /** @type {import('express').Express} */
@@ -134,8 +134,8 @@ app.use(cors({
     if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
 
@@ -345,8 +345,8 @@ app.post('/api/ai/chat', async (req: Request, res: Response) => {
     if (!Array.isArray(messages)) { res.status(400).json({ error: 'messages array required' }); return; }
 
     const systemPrompt = `You are Lotlite's AI assistant. Help with ONLY property or project related queries.
-If the user requests anything unrelated, politely say you can answer property/project questions and offer to connect to a human: +91 9146205267.
-If asked to talk to a human, include in 'reply' the phone number +91 9146205267.
+If the user requests anything unrelated, politely say you can answer property/project questions and offer to connect to a human: +91 9011135889.
+If asked to talk to a human, include in 'reply' the phone number +91 9011135889.
 Do not refuse to show listings. If information is insufficient, ask concise follow-ups. Only suggest calling a human when no results match or the user requests a human.
 Extract and return STRICT JSON with these keys (omit unknown):
   reply: string                       // friendly response or next step
@@ -374,7 +374,7 @@ Rules:
 
     const content = chat.choices?.[0]?.message?.content || '{}';
     let parsed: any = {};
-    try { parsed = JSON.parse(content); } catch {}
+    try { parsed = JSON.parse(content); } catch { }
 
     // Normalize numeric prices if expressed in strings
     const normalize = (v: any) => typeof v === 'string' ? Number(v.replace(/[^0-9.]/g, '')) : v;

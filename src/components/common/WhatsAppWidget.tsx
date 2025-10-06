@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaWhatsapp, FaTimes } from 'react-icons/fa';
 
-const WHATSAPP_PHONE = '919146205267';
+const WHATSAPP_PHONE = '919011135889';
 
 const QUESTIONS: { label: string; message: string }[] = [
   { label: 'I want to buy a property', message: 'Hi, I am interested in buying a property. Please share available options.' },

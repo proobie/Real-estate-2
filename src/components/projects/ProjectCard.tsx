@@ -33,15 +33,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const getStatusColor = (status: Project['status']) => {
     switch (status) {
       case 'upcoming':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-[#A8DADC] text-[#1D3557] border-[#A8DADC]';
       case 'ongoing':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-[#457B9D] text-white border-[#457B9D]';
       case 'completed':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-[#1D3557] text-white border-[#1D3557]';
       case 'ready-to-move':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-[#E63946] text-white border-[#E63946]';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-[#F1FAEE] text-[#1D3557] border-[#A8DADC]';
     }
   };
 
@@ -105,12 +105,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
 
         {/* Availability Badge */}
-        <div className="absolute top-3 right-3 bg-white bg-opacity-90 px-3 py-1 rounded-full text-sm font-semibold text-gray-800">
+        <div className="absolute top-3 right-3 bg-[#F1FAEE] bg-opacity-90 px-3 py-1 rounded-full text-sm font-semibold text-[#1D3557]">
           {calculateAvailabilityPercentage()}% Available
         </div>
 
         {/* Price Range */}
-        <div className="absolute bottom-3 left-3 bg-blue-600 text-white px-3 py-1 rounded-full font-bold text-sm">
+        <div className="absolute bottom-3 left-3 bg-[#1D3557] text-white px-3 py-1 rounded-full font-bold text-sm">
           {formatPrice(project.priceRange.min)} - {formatPrice(project.priceRange.max)}
         </div>
       </div>
@@ -119,14 +119,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className="p-4 sm:p-5 md:p-6">
         {/* Title and Developer */}
         <div className="mb-3">
-          <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 line-clamp-1">
+          <h3 className="text-lg md:text-xl font-bold text-[#1D3557] mb-1 line-clamp-1">
             {project.name}
           </h3>
-          <div className="flex items-center text-gray-600 text-sm mb-2">
+          <div className="flex items-center text-[#457B9D] text-sm mb-2">
             <Building size={14} className="mr-1" />
             <span>by {project.developer}</span>
           </div>
-          <div className="flex items-center text-gray-600 text-sm">
+          <div className="flex items-center text-[#457B9D] text-sm">
             <MapPin size={14} className="mr-1" />
             <span className="line-clamp-1">{project.location.address}, {project.location.city}</span>
           </div>
@@ -134,22 +134,22 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
         {/* Project Stats */}
         <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4">
-          <div className="text-center p-2 bg-gray-50 rounded-lg">
-            <div className="text-lg font-bold text-gray-900">{project.totalUnits}</div>
-            <div className="text-xs text-gray-500">Total Units</div>
+          <div className="text-center p-2 bg-[#F1FAEE] rounded-lg">
+            <div className="text-lg font-bold text-[#1D3557]">{project.totalUnits}</div>
+            <div className="text-xs text-[#457B9D]">Total Units</div>
           </div>
-          <div className="text-center p-2 bg-gray-50 rounded-lg">
-            <div className="text-lg font-bold text-green-600">{project.availableUnits}</div>
-            <div className="text-xs text-gray-500">Available</div>
+          <div className="text-center p-2 bg-[#F1FAEE] rounded-lg">
+            <div className="text-lg font-bold text-[#457B9D]">{project.availableUnits}</div>
+            <div className="text-xs text-[#457B9D]">Available</div>
           </div>
-          <div className="text-center p-2 bg-gray-50 rounded-lg">
-            <div className="text-lg font-bold text-blue-600">
+          <div className="text-center p-2 bg-[#F1FAEE] rounded-lg">
+            <div className="text-lg font-bold text-[#1D3557]">
               {project.completionDate ?
                 new Date(project.completionDate).getFullYear() :
                 '2026'
               }
             </div>
-            <div className="text-xs text-gray-500">Completion</div>
+            <div className="text-xs text-[#457B9D]">Completion</div>
           </div>
         </div>
 
@@ -159,13 +159,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             {project.unitTypes.slice(0, 3).map((type, index) => (
               <span
                 key={index}
-                className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium"
+                className="bg-[#A8DADC] text-[#1D3557] px-2 py-1 rounded-full text-xs font-medium"
               >
                 {type}
               </span>
             ))}
             {project.unitTypes.length > 3 && (
-              <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+              <span className="bg-[#F1FAEE] text-[#1D3557] px-2 py-1 rounded-full text-xs">
                 +{project.unitTypes.length - 3} more
               </span>
             )}
@@ -178,13 +178,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             {project.amenities.slice(0, 4).map((amenity, index) => (
               <span
                 key={index}
-                className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs"
+                className="bg-[#F1FAEE] text-[#1D3557] px-2 py-1 rounded-full text-xs"
               >
                 {amenity}
               </span>
             ))}
             {project.amenities.length > 4 && (
-              <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+              <span className="bg-[#F1FAEE] text-[#1D3557] px-2 py-1 rounded-full text-xs">
                 +{project.amenities.length - 4} more
               </span>
             )}
@@ -195,7 +195,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="flex space-x-2">
           <button
             onClick={() => onViewDetails(project)}
-            className="flex-1 bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors"
+            className="flex-1 bg-[#E63946] hover:bg-[#d12d3a] text-white font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors"
           >
             View Details
           </button>
@@ -203,7 +203,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             href={project.brochure}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 border border-primary text-primary hover:bg-primary/10 font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors text-center"
+            className="flex-1 border border-[#1D3557] text-[#1D3557] hover:bg-[#1D3557]/10 font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors text-center"
           >
             Brochure
           </a>

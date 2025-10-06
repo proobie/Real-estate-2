@@ -815,8 +815,8 @@ app.post('/api/ai/chat', async (req, res) => {
         if (!Array.isArray(messages)) { res.status(400).json({ error: 'messages array required' }); return; }
 
         const systemPrompt = `You are Lotlite's AI assistant. Help with ONLY property or project related queries.
-If the user requests anything unrelated, politely say you can answer property/project questions and offer to connect to a human: +91 9146205267.
-If asked to talk to a human, include in 'reply' the phone number +91 9146205267.
+If the user requests anything unrelated, politely say you can answer property/project questions and offer to connect to a human: +91 9011135889.
+If asked to talk to a human, include in 'reply' the phone number +91 9011135889.
 Do not refuse to show listings. If information is insufficient, ask concise follow-ups. Only suggest calling a human when no results match or the user requests a human.
 Extract and return STRICT JSON with these keys (omit unknown):
   reply: string                       // friendly response or next step
@@ -846,8 +846,8 @@ Rules:
 
         const content = chat.choices?.[0]?.message?.content || '{}';
         let parsed = {};
-        try { parsed = JSON.parse(content); } catch {}
-        
+        try { parsed = JSON.parse(content); } catch { }
+
         // Debug logging
         console.log('AI Chat - Parsed response:', parsed);
 
@@ -879,7 +879,7 @@ Rules:
 
         const hasPropertyRequirements = Boolean(propertyIntent && searchFilters.city && (searchFilters.minPrice || searchFilters.maxPrice) && typeof bhk === 'number');
         const hasProjectRequirements = Boolean(projectIntent && searchFilters.city);
-        
+
         // Debug logging
         console.log('AI Chat - Search filters:', searchFilters);
         console.log('AI Chat - BHK:', bhk, 'Listing type:', listingType);
@@ -894,12 +894,12 @@ Rules:
             const { data, error } = await exports.supabase.from('properties').select('*').limit(50);
             if (!error) {
                 results = data || [];
-                
+
                 // Apply filters in JavaScript for better control
                 if (searchFilters.type) {
                     results = results.filter(p => (p.type || '').toLowerCase() === String(searchFilters.type).toLowerCase());
                 }
-                
+
                 // Filter by city (case-insensitive, partial match)
                 if (searchFilters.city) {
                     const cityLower = String(searchFilters.city).toLowerCase();
@@ -908,17 +908,17 @@ Rules:
                         return propertyCity.includes(cityLower) || cityLower.includes(propertyCity);
                     });
                 }
-                
+
                 // Filter by listing type (sale/rent)
                 if (listingType) {
                     results = results.filter(p => (p.listingType || '').toLowerCase() === listingType);
                 }
-                
+
                 // Filter by BHK (bedrooms field)
                 if (typeof bhk === 'number') {
                     results = results.filter(p => Number(p.bedrooms || 0) === bhk);
                 }
-                
+
                 // Filter by price - use correct field based on listing type
                 if (typeof searchFilters.minPrice === 'number' || typeof searchFilters.maxPrice === 'number') {
                     results = results.filter(p => {
@@ -929,7 +929,7 @@ Rules:
                     });
                 }
             }
-            
+
             // Debug logging
             console.log('AI Chat - Found properties:', results.length);
             if (results.length > 0) {
@@ -941,13 +941,13 @@ Rules:
             const { data, error } = await exports.supabase.from('projects').select('*').limit(50);
             if (!error) {
                 projectResults = data || [];
-                
+
                 // Debug logging - show all projects
                 console.log('AI Chat - Total projects in database:', projectResults.length);
                 if (projectResults.length > 0) {
                     console.log('AI Chat - All project cities:', projectResults.map(p => p.location?.city).filter(Boolean));
                 }
-                
+
                 // Apply filters in JavaScript for better control
                 if (searchFilters.city) {
                     const cityLower = String(searchFilters.city).toLowerCase();
@@ -956,7 +956,7 @@ Rules:
                         return projectCity.includes(cityLower) || cityLower.includes(projectCity);
                     });
                 }
-                
+
                 // Debug logging
                 console.log('AI Chat - Found projects:', projectResults.length);
                 if (projectResults.length > 0) {

@@ -7,61 +7,61 @@ const ServiceSection: React.FC = () => {
       icon: Search,
       title: 'Property Search & Site Visits',
       description: 'Find verified properties with clear titles and arrange site visits with our expert team.',
-      color: 'bg-secondary/20 text-secondary-dark'
+      color: 'bg-[#A8DADC]/40 text-[#1D3557]'
     },
     {
       icon: Home,
       title: 'Property Management',
       description: 'Complete property management services including tenant verification and rent collection.',
-      color: 'bg-secondary/20 text-secondary-dark'
+      color: 'bg-[#A8DADC]/40 text-[#1D3557]'
     },
     {
       icon: DollarSign,
       title: 'Property Valuation & Market Analysis',
       description: 'Get accurate property valuations and market analysis for informed investment decisions.',
-      color: 'bg-secondary/20 text-secondary-dark'
+      color: 'bg-[#A8DADC]/40 text-[#1D3557]'
     },
     {
       icon: FileText,
       title: 'Legal Documentation & RERA Compliance',
       description: 'Complete legal assistance including title verification, registration, and RERA compliance.',
-      color: 'bg-secondary/20 text-secondary-dark'
+      color: 'bg-[#A8DADC]/40 text-[#1D3557]'
     },
     {
       icon: Key,
       title: 'Rent & Lease Services',
       description: 'Comprehensive rental services with tenant verification, agreement drafting, and deposit management.',
-      color: 'bg-secondary/20 text-secondary-dark'
+      color: 'bg-[#A8DADC]/40 text-[#1D3557]'
     },
     {
       icon: Calculator,
       title: 'Home Loan Assistance',
       description: 'Expert guidance for home loans with pre-approved offers from leading banks and NBFCs.',
-      color: 'bg-secondary/20 text-secondary-dark'
+      color: 'bg-[#A8DADC]/40 text-[#1D3557]'
     },
     {
       icon: Shield,
       title: 'Investment Advisory',
       description: 'Strategic real estate investment advice for maximum returns and portfolio diversification.',
-      color: 'bg-secondary/20 text-secondary-dark'
+      color: 'bg-[#A8DADC]/40 text-[#1D3557]'
     },
     {
       icon: Users,
       title: 'NRI Services',
       description: 'Specialized services for NRI clients including remote property management and investment guidance.',
-      color: 'bg-secondary/20 text-secondary-dark'
+      color: 'bg-[#A8DADC]/40 text-[#1D3557]'
     }
   ];
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-[#F1FAEE]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Our <span className="text-primary">Services</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-[#1D3557] mb-4">
+            Our <span className="text-[#E63946]">Services</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-[#457B9D] max-w-2xl mx-auto">
             We provide comprehensive real estate services to help you buy, sell, rent, or invest in properties across India with complete transparency
           </p>
         </div>
@@ -78,14 +78,14 @@ const ServiceSection: React.FC = () => {
                 <div className={`w-12 h-12 ${service.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   <IconComponent size={24} />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">
+                <h3 className="text-lg font-bold text-[#1D3557] mb-3">
                   {service.title}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-[#457B9D] text-sm leading-relaxed">
                   {service.description}
                 </p>
                 <div className="mt-4">
-                  <button className="text-primary hover:text-primary-dark font-semibold text-sm flex items-center space-x-2 group-hover:translate-x-2 transition-transform duration-300">
+                  <button className="text-[#1D3557] hover:text-[#0f2746] font-semibold text-sm flex items-center space-x-2 group-hover:translate-x-2 transition-transform duration-300">
                     <span>Learn More</span>
                     <span>→</span>
                   </button>
@@ -97,18 +97,18 @@ const ServiceSection: React.FC = () => {
 
         {/* CTA Section */}
         <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-8 md:p-12 text-white">
+          <div className="bg-gradient-to-r from-[#457B9D] to-[#1D3557] rounded-2xl p-8 md:p-12 text-white">
             <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              Ready to Find Your <span className="text-secondary">Dream Property?</span>
+              Ready to Find Your <span className="text-[#E63946]">Dream Property?</span>
             </h3>
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
               Contact our expert team today for personalized property consultation and end-to-end assistance in your real estate journey.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-secondary text-primary-dark hover:bg-secondary-dark font-semibold py-3 px-8 rounded-lg transition-colors">
+              <button className="bg-[#E63946] text-white hover:bg-[#d12d3a] font-semibold py-3 px-8 rounded-lg transition-colors">
                 Schedule Site Visit
               </button>
-              <button className="border-2 border-white text-white hover:bg-white hover:text-primary-dark font-semibold py-3 px-8 rounded-lg transition-colors">
+              <button className="border-2 border-white text-white hover:bg-white hover:text-[#1D3557] font-semibold py-3 px-8 rounded-lg transition-colors">
                 Get Property Valuation
               </button>
             </div>

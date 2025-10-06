@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import LotliteLogo from '../../assets/lotlite-logo.png';
+import LotliteLogo from '../../assets/RedLotliteLogo.png';
 import {
   Lock,
   Mail,
@@ -36,14 +36,14 @@ export default function LoginForm() {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#D3D3D3] to-[#f3f3f3] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#A8DADC] to-[#F1FAEE] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
 
         {/* Back Button */}
         <div className="flex justify-start mb-4">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center text-[#0B0B45] hover:text-[#D4AF37] transition-colors"
+            className="flex items-center text-[#1D3557] hover:text-[#457B9D] transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             <span className="text-sm">Back to Website</span>
@@ -53,12 +53,12 @@ export default function LoginForm() {
         {/* Logo & Headings */}
         <div className="text-center">
           <div className="flex justify-center">
-            <img src={LotliteLogo} alt="Lotlite Logo" className="h-16" />
+            <img src={LotliteLogo} alt="Lotlite Logo" className="h-14" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-[#0B0B45]">
+          <h2 className="mt-6 text-3xl font-bold text-[#1D3557]">
             Welcome Back
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-[#457B9D]">
             Sign in to your real estate dashboard
           </p>
         </div>
@@ -77,13 +77,13 @@ export default function LoginForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-[#0B0B45] mb-2"
+                className="block text-sm font-medium text-[#1D3557] mb-2"
               >
                 Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-[#D3D3D3]" />
+                  <Mail className="h-5 w-5 text-[#457B9D]" />
                 </div>
                 <input
                   id="email"
@@ -93,7 +93,7 @@ export default function LoginForm() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-[#D3D3D3] rounded-md leading-5 bg-white placeholder-[#999] focus:outline-none focus:ring-1 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+                  className="block w-full pl-10 pr-3 py-3 border border-[#A8DADC] rounded-md leading-5 bg-white placeholder-[#999] focus:outline-none focus:ring-1 focus:ring-[#E63946] focus:border-[#E63946]"
                   placeholder="Enter your email"
                 />
               </div>
@@ -103,13 +103,13 @@ export default function LoginForm() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-[#0B0B45] mb-2"
+                className="block text-sm font-medium text-[#1D3557] mb-2"
               >
                 Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-[#D3D3D3]" />
+                  <Lock className="h-5 w-5 text-[#457B9D]" />
                 </div>
                 <input
                   id="password"
@@ -119,7 +119,7 @@ export default function LoginForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-3 border border-[#D3D3D3] rounded-md leading-5 bg-white placeholder-[#999] focus:outline-none focus:ring-1 focus:ring-[#D4AF37] focus:border-[#D4AF37]"
+                  className="block w-full pl-10 pr-10 py-3 border border-[#A8DADC] rounded-md leading-5 bg-white placeholder-[#999] focus:outline-none focus:ring-1 focus:ring-[#E63946] focus:border-[#E63946]"
                   placeholder="Enter your password"
                 />
                 <button
@@ -128,9 +128,9 @@ export default function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-[#999]" />
+                    <EyeOff className="h-5 w-5 text-[#457B9D]" />
                   ) : (
-                    <Eye className="h-5 w-5 text-[#999]" />
+                    <Eye className="h-5 w-5 text-[#457B9D]" />
                   )}
                 </button>
               </div>
@@ -141,7 +141,7 @@ export default function LoginForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#D4AF37] hover:bg-[#b9962c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D4AF37] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#E63946] hover:bg-[#d12d3a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#457B9D] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isLoading ? (
                   <div className="flex items-center">

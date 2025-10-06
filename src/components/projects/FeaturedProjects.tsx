@@ -80,10 +80,10 @@ const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ onViewDetails }) =>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#1D3557] mb-4">
             Featured Projects
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-[#457B9D] max-w-2xl mx-auto">
             Explore premium development projects by India's leading builders offering world-class amenities
           </p>
         </div>
@@ -104,7 +104,7 @@ const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ onViewDetails }) =>
         <div className="text-center mt-12">
           <button
             onClick={() => navigate('/projects')}
-            className="bg-secondary text-primary-dark hover:bg-secondary-dark font-semibold py-3 px-8 rounded-lg transition-colors"
+            className="bg-[#E63946] hover:bg-[#d12d3a] text-white font-semibold py-3 px-8 rounded-lg transition-colors"
           >
             View All Projects
           </button>

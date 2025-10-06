@@ -247,7 +247,7 @@ export default function ChatAssistant() {
                       <button onClick={() => toggleListing(mode === 'rent' ? 'sale' : 'rent')} className="px-3 py-1.5 text-xs rounded-full border bg-white hover:bg-gray-100">{mode === 'rent' ? 'Switch to Buy' : 'Switch to Rent'}</button>
                     </div>
                     <div className="pt-2 flex items-center gap-2">
-                      <a href="tel:+919146205267" className="inline-block px-3 py-2 text-sm rounded-md bg-[#0d47a1] text-white">Call us</a>
+                      <a href="tel:+919011135889" className="inline-block px-3 py-2 text-sm rounded-md bg-[#0d47a1] text-white">Call us</a>
                     </div>
                     <div className="mt-1 text-[11px] text-gray-600">
                       Visit our office to know more based on your criteria:
@@ -269,7 +269,7 @@ export default function ChatAssistant() {
                       ))}
                     </div>
                     <div className="pt-2 flex items-center gap-2">
-                      <a href="tel:+919146205267" className="inline-block px-3 py-2 text-sm rounded-md bg-[#0d47a1] text-white">Call us</a>
+                      <a href="tel:+919011135889" className="inline-block px-3 py-2 text-sm rounded-md bg-[#0d47a1] text-white">Call us</a>
                     </div>
                     <div className="mt-1 text-[11px] text-gray-600">
                       Visit our office to know more based on your criteria:
@@ -286,7 +286,10 @@ export default function ChatAssistant() {
               <div className="mt-2 p-3 bg-white border border-gray-200 rounded-xl text-sm">
                 <div>Sorry, couldn't find your match. Please call us for assistance in finding properties that match your criteria.</div>
                 <div className="mt-2 flex items-center gap-2">
-                  <a href="tel:+919146205267" className="inline-block px-3 py-2 text-sm rounded-md bg-[#0d47a1] text-white">Call us</a>
+                  <a href="tel:+919011135889" className="inline-block px-3 py-2 text-sm rounded-md bg-[#0d47a1] text-white">Call us</a>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <a href="tel:+919011135889" className="inline-block px-3 py-2 text-sm rounded-md bg-[#0d47a1] text-white">Call us</a>
                 </div>
                 <div className="mt-2 text-xs text-gray-600">
                   Or visit our office to know more based on your criteria:

@@ -157,8 +157,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           <button
             onClick={handleSave}
             className={`p-2 rounded-full transition-all ${isSaved
-              ? 'bg-red-500 text-white'
-              : 'bg-white bg-opacity-90 text-gray-700 hover:bg-red-50 hover:text-red-500'
+              ? 'bg-[#E63946] text-white'
+              : 'bg-white bg-opacity-90 text-gray-700 hover:bg-[#FDECEE] hover:text-[#E63946]'
               }`}
           >
             <Heart size={18} fill={isSaved ? 'currentColor' : 'none'} />
@@ -173,13 +173,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
         {/* Status Badge */}
         {property.featured && (
-          <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+          <div className="absolute top-2 left-2 bg-[#E63946] text-white px-3 py-1 rounded-full text-xs font-semibold">
             Featured
           </div>
         )}
 
         {/* Price Badge */}
-        <div className="absolute bottom-2 right-2 bg-primary text-white px-3 py-1 rounded-full font-bold">
+        <div className="absolute bottom-2 right-2 bg-[#1D3557] text-white px-3 py-1 rounded-full font-bold">
           {property.listingType === 'rent' && property.rentAmount
             ? `₹${property.rentAmount.toLocaleString('en-IN')} / month`
             : formatPrice(property.price)}
@@ -261,13 +261,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className="flex space-x-2">
           <button
             onClick={handleContact}
-            className="flex-1 bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors"
+            className="flex-1 bg-[#1D3557] hover:bg-[#0f2746] text-white font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors"
           >
             Contact Agent
           </button>
           <button
             onClick={handleViewDetails}
-            className="flex-1 border border-primary text-primary hover:bg-primary/10 font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors"
+            className="flex-1 border border-[#1D3557] text-[#1D3557] hover:bg-[#1D3557]/10 font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors"
           >
             View Details
           </button>

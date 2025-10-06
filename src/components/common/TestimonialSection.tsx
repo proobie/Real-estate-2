@@ -74,10 +74,10 @@ const TestimonialSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            What Our <span className="text-primary">Customers Say</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-[#1D3557] mb-4">
+            What Our <span className="text-[#E63946]">Customers Say</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-[#457B9D] max-w-2xl mx-auto">
             Over 25,000 happy families have found their dream properties through Lotlite. Here's what they have to say about our services.
           </p>
         </div>
@@ -86,9 +86,9 @@ const TestimonialSection: React.FC = () => {
         <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4">
           {testimonials.map((testimonial) => (
             <div key={testimonial.id} className="snap-center shrink-0 w-[85%] sm:w-[420px] md:w-auto">
-              <div className="bg-gray-50 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative">
+              <div className="bg-[#F1FAEE] rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative">
                 {/* Quote Icon */}
-                <div className="absolute top-4 right-4 text-primary/20">
+                <div className="absolute top-4 right-4 text-[#1D3557]/20">
                   <Quote size={32} />
                 </div>
 
@@ -99,7 +99,7 @@ const TestimonialSection: React.FC = () => {
                 </div>
 
                 {/* Testimonial Text */}
-                <p className="text-gray-700 mb-6 leading-relaxed">
+                <p className="text-[#1D3557] mb-6 leading-relaxed">
                   "{testimonial.text}"
                 </p>
 
@@ -114,9 +114,9 @@ const TestimonialSection: React.FC = () => {
                     }}
                   />
                   <div>
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-500">{testimonial.location}</div>
-                    <div className="text-xs text-primary font-medium">{testimonial.propertyType}</div>
+                    <div className="font-semibold text-[#1D3557]">{testimonial.name}</div>
+                    <div className="text-sm text-[#457B9D]">{testimonial.location}</div>
+                    <div className="text-xs text-[#1D3557] font-medium">{testimonial.propertyType}</div>
                   </div>
                 </div>
               </div>
@@ -125,10 +125,10 @@ const TestimonialSection: React.FC = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="mt-16 bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-8 md:p-12 text-white">
+        <div className="mt-16 bg-gradient-to-r from-[#457B9D] to-[#1D3557] rounded-2xl p-8 md:p-12 text-white">
           <div className="text-center mb-8">
             <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              Trusted by Thousands Across <span className="text-secondary">India</span>
+              Trusted by Thousands Across <span className="text-[#E63946]">India</span>
             </h3>
             <p className="text-blue-100 max-w-2xl mx-auto">
               Our commitment to transparency, quality service, and customer satisfaction has made us India's preferred real estate partner.
@@ -138,19 +138,19 @@ const TestimonialSection: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold mb-2">25,000+</div>
-              <div className="text-secondary-light">Happy Families</div>
+              <div className="text-[#A8DADC]">Happy Families</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold mb-2">10,000+</div>
-              <div className="text-secondary-light">Properties Sold</div>
+              <div className="text-[#A8DADC]">Properties Sold</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold mb-2">150+</div>
-              <div className="text-secondary-light">Projects Delivered</div>
+              <div className="text-[#A8DADC]">Projects Delivered</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold mb-2">4.8/5</div>
-              <div className="text-secondary-light">Customer Rating</div>
+              <div className="text-[#A8DADC]">Customer Rating</div>
             </div>
           </div>
         </div>

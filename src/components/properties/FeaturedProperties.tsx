@@ -35,13 +35,13 @@ const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({ onViewDetails }
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <section id="featured-properties" className="py-16 bg-gray-50">
+    <section id="featured-properties" className="py-16 bg-[#F1FAEE]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#1D3557] mb-4">
             Featured Properties
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-[#457B9D] max-w-2xl mx-auto">
             Discover our handpicked selection of premium properties offering exceptional value and prime locations
           </p>
         </div>
@@ -62,10 +62,10 @@ const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({ onViewDetails }
         ) : (
           <div className="text-center py-12">
             <div className="bg-white rounded-lg shadow-sm p-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-[#1D3557] mb-2">
                 No Featured Properties Available
               </h3>
-              <p className="text-gray-500">
+              <p className="text-[#457B9D]">
                 Featured properties will appear here once they are added by the admin.
               </p>
             </div>
@@ -75,7 +75,7 @@ const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({ onViewDetails }
         <div className="text-center mt-12">
           <button
             onClick={() => navigate('/search')}
-            className="bg-secondary text-primary-dark hover:bg-secondary-dark font-semibold py-3 px-8 rounded-lg transition-colors"
+            className="bg-[#E63946] hover:bg-[#d12d3a] text-white font-semibold py-3 px-8 rounded-lg transition-colors"
           >
             View All Properties
           </button>

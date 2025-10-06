@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Search, Menu, X, Phone, Mail, MapPin, User, Heart, Bell, LogOut, Settings, UserCircle, Home, Building2, Star, LayoutGrid } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import LotliteLogo from '../../assets/lotlite-logo.png';
+import LotliteLogo from '../../assets/RedLotliteLogo.png';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
                 <Phone size={14} />
-                <span>+91 9146205267</span>
+                <a href="tel:+919011135889" className="hover:underline">+91 9011135889</a>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail size={14} />
@@ -148,7 +148,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
           <div className="flex justify-between items-center text-sm w-full">
             <div className="flex items-center space-x-2">
               <Phone size={14} />
-              <span>+91 9146205267</span>
+              <a href="tel:+919011135889" className="hover:underline">+91 9011135889</a>
             </div>
             <div className="flex items-center space-x-4">
               <button className="hover:text-secondary-light transition-colors">
@@ -201,7 +201,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
         <div className="flex items-center gap-2 py-2">
           {/* Logo */}
           <div className="flex items-center">
-            <img src={LotliteLogo} alt="Lotlite Logo" className="h-10 sm:h-12 md:h-14 w-auto" />
+            <img src={LotliteLogo} alt="Lotlite Logo" className="h-8 sm:h-10 md:h-12 w-auto" />
           </div>
 
           {/* Mobile Inline Search */}
@@ -224,7 +224,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-12 ml-8">
+          <nav className="hidden md:flex flex-1 items-center justify-center space-x-12">
             <a href="#" onClick={goBuy} className="text-gray-700 hover:text-secondary font-medium transition-colors">
               Buy
             </a>
@@ -299,7 +299,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-2">
-                <img src={LotliteLogo} alt="Lotlite" className="h-8 w-auto" />
+                <img src={LotliteLogo} alt="Lotlite" className="h-7 w-auto" />
               </div>
               <button onClick={() => setIsMenuOpen(false)} className="p-2 rounded-md hover:bg-gray-100">
                 <X size={20} />
@@ -409,7 +409,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                 <div className="rounded-xl border border-gray-200 bg-white">
                   <div className="px-4 py-2 border-b text-xs text-gray-500">Contact</div>
                   <div className="px-4 py-3 text-sm text-gray-700 space-y-2">
-                    <div className="flex items-center gap-2"><Phone size={14} /><a href="tel:+919146205267" className="hover:text-secondary">+91 9146205267</a></div>
+                    <div className="flex items-center gap-2"><Phone size={14} /><a href="tel:+919011135889" className="hover:text-secondary">+91 9011135889</a></div>
                     <div className="flex items-center gap-2"><Mail size={14} /><a href="mailto:contact@lotlitetechnology.com" className="hover:text-secondary">contact@lotlitetechnology.com</a></div>
                     <div className="flex items-start gap-2"><MapPin size={18} className="mt-0.5 flex-shrink-0" /><a href="https://maps.app.goo.gl/Rjpzv3UUDYP3uirZ6" target="_blank" rel="noopener noreferrer" className="hover:text-secondary underline-offset-2 hover:underline text-left">Floor No. -2, Tower No. B-1, Office No. 0302, Blue Ridge, MIDC Phase 2 Main Road, Hinjewadi, Pune, Maharashtra, 411057</a></div>
                   </div>
