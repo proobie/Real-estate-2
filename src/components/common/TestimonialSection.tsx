@@ -86,7 +86,7 @@ const TestimonialSection: React.FC = () => {
         <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4">
           {testimonials.map((testimonial) => (
             <div key={testimonial.id} className="snap-center shrink-0 w-[85%] sm:w-[420px] md:w-auto">
-              <div className="bg-[#F1FAEE] rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative">
+              <div className="bg-gray-50 rounded-xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative">
                 {/* Quote Icon */}
                 <div className="absolute top-4 right-4 text-[#1D3557]/20">
                   <Quote size={32} />

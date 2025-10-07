@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <img src={LotliteLogo} alt="Lotlite Logo" className="h-14 w-auto mb-4" />
+            <img src={LotliteLogo} alt="Lotlite Logo" className="h-12 w-auto mb-4" />
             <p className="text-[#A8DADC] mb-4">
               Your trusted partner in finding the perfect property across India. We specialize in residential and commercial real estate with over 15 years of experience in the Indian market.
             </p>

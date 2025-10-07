@@ -6,12 +6,14 @@ interface ProjectCardProps {
   project: Project;
   onViewDetails?: (project: Project) => void;
   onDownloadBrochure?: (project: Project) => void;
+  homeVariant?: boolean; // use light gray backgrounds instead of mint when true
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   onViewDetails,
-  onDownloadBrochure
+  onDownloadBrochure,
+  homeVariant = false,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -41,7 +43,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       case 'ready-to-move':
         return 'bg-[#E63946] text-white border-[#E63946]';
       default:
-        return 'bg-[#F1FAEE] text-[#1D3557] border-[#A8DADC]';
+        return `${homeVariant ? 'bg-gray-50' : 'bg-[#F1FAEE]'} text-[#1D3557] border-[#A8DADC]`;
     }
   };
 
@@ -105,7 +107,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
 
         {/* Availability Badge */}
-        <div className="absolute top-3 right-3 bg-[#F1FAEE] bg-opacity-90 px-3 py-1 rounded-full text-sm font-semibold text-[#1D3557]">
+        <div className={`absolute top-3 right-3 ${homeVariant ? 'bg-gray-50' : 'bg-[#F1FAEE]'} bg-opacity-90 px-3 py-1 rounded-full text-sm font-semibold text-[#1D3557]`}>
           {calculateAvailabilityPercentage()}% Available
         </div>
 
@@ -134,15 +136,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
         {/* Project Stats */}
         <div className="grid grid-cols-3 gap-2 md:gap-3 mb-4">
-          <div className="text-center p-2 bg-[#F1FAEE] rounded-lg">
+          <div className={`text-center p-2 ${homeVariant ? 'bg-gray-50' : 'bg-[#F1FAEE]'} rounded-lg`}>
             <div className="text-lg font-bold text-[#1D3557]">{project.totalUnits}</div>
             <div className="text-xs text-[#457B9D]">Total Units</div>
           </div>
-          <div className="text-center p-2 bg-[#F1FAEE] rounded-lg">
+          <div className={`text-center p-2 ${homeVariant ? 'bg-gray-50' : 'bg-[#F1FAEE]'} rounded-lg`}>
             <div className="text-lg font-bold text-[#457B9D]">{project.availableUnits}</div>
             <div className="text-xs text-[#457B9D]">Available</div>
           </div>
-          <div className="text-center p-2 bg-[#F1FAEE] rounded-lg">
+          <div className={`text-center p-2 ${homeVariant ? 'bg-gray-50' : 'bg-[#F1FAEE]'} rounded-lg`}>
             <div className="text-lg font-bold text-[#1D3557]">
               {project.completionDate ?
                 new Date(project.completionDate).getFullYear() :
@@ -165,7 +167,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               </span>
             ))}
             {project.unitTypes.length > 3 && (
-              <span className="bg-[#F1FAEE] text-[#1D3557] px-2 py-1 rounded-full text-xs">
+              <span className={`${homeVariant ? 'bg-gray-50' : 'bg-[#F1FAEE]'} text-[#1D3557] px-2 py-1 rounded-full text-xs`}>
                 +{project.unitTypes.length - 3} more
               </span>
             )}
@@ -178,13 +180,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             {project.amenities.slice(0, 4).map((amenity, index) => (
               <span
                 key={index}
-                className="bg-[#F1FAEE] text-[#1D3557] px-2 py-1 rounded-full text-xs"
+                className={`${homeVariant ? 'bg-gray-50' : 'bg-[#F1FAEE]'} text-[#1D3557] px-2 py-1 rounded-full text-xs`}
               >
                 {amenity}
               </span>
             ))}
             {project.amenities.length > 4 && (
-              <span className="bg-[#F1FAEE] text-[#1D3557] px-2 py-1 rounded-full text-xs">
+              <span className={`${homeVariant ? 'bg-gray-50' : 'bg-[#F1FAEE]'} text-[#1D3557] px-2 py-1 rounded-full text-xs`}>
                 +{project.amenities.length - 4} more
               </span>
             )}

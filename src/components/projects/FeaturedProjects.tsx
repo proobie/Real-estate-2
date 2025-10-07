@@ -96,6 +96,7 @@ const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ onViewDetails }) =>
               project={project}
               onViewDetails={handleViewDetails}
               onDownloadBrochure={handleDownloadBrochure}
+              homeVariant
             />
           ))}
         </div>

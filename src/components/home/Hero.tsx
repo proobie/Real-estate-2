@@ -110,7 +110,7 @@ const Hero: React.FC = () => {
         <div className="bg-white/85 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-w-4xl mx-auto border border-[#A8DADC]/60 ring-1 ring-white/10">
           {/* Search Type Toggle */}
           <div className="flex justify-center mb-6">
-            <div className="bg-[#F1FAEE] rounded-full p-1 flex">
+            <div className="bg-gray-50 rounded-full p-1 flex">
               <button
                 onClick={() => setSearchType('buy')}
                 className={`px-4 py-2 rounded-full font-medium transition-all text-sm ${searchType === 'buy'

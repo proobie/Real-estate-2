@@ -201,7 +201,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
         <div className="flex items-center gap-2 py-2">
           {/* Logo */}
           <div className="flex items-center">
-            <img src={LotliteLogo} alt="Lotlite Logo" className="h-8 sm:h-10 md:h-12 w-auto" />
+            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} aria-label="Go to home">
+              <img src={LotliteLogo} alt="Lotlite Logo" className="h-7 sm:h-9 md:h-11 w-auto" />
+            </a>
           </div>
 
           {/* Mobile Inline Search */}
@@ -299,7 +301,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-2">
-                <img src={LotliteLogo} alt="Lotlite" className="h-7 w-auto" />
+                <img src={LotliteLogo} alt="Lotlite" className="h-6 w-auto" />
               </div>
               <button onClick={() => setIsMenuOpen(false)} className="p-2 rounded-md hover:bg-gray-100">
                 <X size={20} />
