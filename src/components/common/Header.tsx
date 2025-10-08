@@ -36,6 +36,11 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
     navigate('/', { state: { scrollTo: 'featured-properties' } });
   };
 
+const goBlogs = (e?: React.MouseEvent) => {
+  e?.preventDefault();
+  navigate('/blogs');
+};
+
   const goServices = (e?: React.MouseEvent) => {
     e?.preventDefault();
     navigate('/', { state: { scrollTo: 'services' } });
@@ -112,7 +117,18 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                         <p className="text-xs text-gray-500 capitalize">{user.role}</p>
                       </div>
                       <button
-                        onClick={() => { navigate('/admin'); setIsUserMenuOpen(false); }}
+                          onClick={() => {
+                            if (user?.role === 'admin') {
+                              navigate('/admin');
+                            } else if (user?.role === 'employee') {
+                              navigate('/employee');
+                            } else if (user?.role === 'client') {
+                              navigate('/client');
+                            } else {
+                              navigate('/login');
+                            }
+                          }}
+
                         className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       >
                         <Settings size={16} className="mr-2" />
@@ -240,7 +256,11 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
             >
               New Projects
             </a>
+            <a href="#" onClick={goBlogs} className="text-gray-700 hover:text-secondary font-medium transition-colors">
+              Blogs
+            </a>
           </nav>
+
 
           {/* Search Bar */}
           <div className="hidden lg:block ml-auto">
@@ -404,6 +424,14 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                     <UserCircle size={18} className="text-primary" />
                   </div>
                 </button>
+                 <button onClick={goBlogs} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
+                    <div className="text-left">
+                      <div className="text-base font-semibold text-gray-900">Blogs</div>
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <LayoutGrid size={18} className="text-primary" />
+                    </div>
+                    </button>
               </div>
 
               {/* Contact & Account */}
@@ -433,7 +461,20 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                         </div>
                       </div>
                       <div className="mt-3 grid grid-cols-2 gap-2">
-                        <button onClick={() => { navigate('/admin'); setIsMenuOpen(false); }} className="px-3 py-2 text-sm border rounded-md hover:bg-gray-50">Dashboard</button>
+                        <button
+                          onClick={() => {
+                            if (user?.role === 'admin') {
+                              navigate('/admin');
+                            } else {
+                              navigate('/client-dashboard');
+                            }
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <Settings size={16} className="mr-2" />
+                          Dashboard
+                        </button>
                         <button onClick={handleLogout} className="px-3 py-2 text-sm border rounded-md hover:bg-gray-50">Logout</button>
                       </div>
                     </div>

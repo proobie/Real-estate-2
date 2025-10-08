@@ -27,7 +27,7 @@ const PropertyDetails: React.FC = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactPurpose, setContactPurpose] = useState<'inquiry' | 'site-visit'>('inquiry');
-  const [form, setForm] = useState({ name: '', phone: '', message: '', preferredTime: '' });
+const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phone || '',   message: '',   preferredTime: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
@@ -230,7 +230,12 @@ const PropertyDetails: React.FC = () => {
   const openContactForm = (purpose: 'inquiry' | 'site-visit') => {
     setContactPurpose(purpose);
     setShowContactForm(true);
-    setForm({ name: '', phone: '', message: '', preferredTime: '' });
+    setForm({ 
+    name: user?.name || '', 
+    phone: user?.phone || '', 
+    message: '', 
+    preferredTime: '' 
+  });
     setFormError(null);
     setFormSuccess(null);
   };
@@ -834,95 +839,101 @@ const PropertyDetails: React.FC = () => {
       {/* Contact Form Modal */}
       {showContactForm && !showThankYou && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">
-                {contactPurpose === 'site-visit' ? 'Schedule Site Visit' : 'Send Inquiry'}
-              </h3>
-              <button
-                onClick={() => setShowContactForm(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleContactFormSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Your Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleContactFormChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleContactFormChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message {contactPurpose === 'site-visit' ? '(Optional)' : ''}
-                </label>
-                <textarea
-                  name="message"
-                  rows={3}
-                  value={form.message}
-                  onChange={handleContactFormChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
-                  placeholder={contactPurpose === 'site-visit' ? 'Any special requests or questions?' : 'I am interested in this property...'}
-                ></textarea>
-              </div>
-              {contactPurpose === 'site-visit' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Preferred Time for Site Visit
-                  </label>
-                  <input
-                    type="datetime-local"
-                    name="preferredTime"
-                    value={form.preferredTime}
-                    onChange={handleContactFormChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
-                  />
-                </div>
-              )}
-              {formError && <div className="text-red-500 text-sm">{formError}</div>}
-              {formSuccess && <div className="text-green-600 text-sm">{formSuccess}</div>}
-              <div className="flex space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setShowContactForm(false)}
-                  className="flex-1 py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  disabled={formLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 px-4 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors"
-                  disabled={formLoading}
-                >
-                  {formLoading ? 'Submitting...' : 'Submit'}
-                </button>
-              </div>
-            </form>
-          </div>
+    <div className="bg-white rounded-xl max-w-md w-full p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">
+          {contactPurpose === 'site-visit' ? 'Schedule Site Visit' : 'Send Inquiry'}
+        </h3>
+        <button
+          onClick={() => setShowContactForm(false)}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          ×
+        </button>
+      </div>
+      <form onSubmit={handleContactFormSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Your Name
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={handleContactFormChange}
+            required
+            disabled={!!user} // Disable if user is logged in
+            className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent ${
+              user ? 'bg-gray-100 cursor-not-allowed' : ''
+            }`}
+          />
         </div>
-      )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            name="phone"
+            value={form.phone}
+            onChange={handleContactFormChange}
+            required
+            disabled={!!user} // Disable if user is logged in
+            className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent ${
+              user ? 'bg-gray-100 cursor-not-allowed' : ''
+            }`}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Message {contactPurpose === 'site-visit' ? '(Optional)' : ''}
+          </label>
+          <textarea
+            name="message"
+            rows={3}
+            value={form.message}
+            onChange={handleContactFormChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
+            placeholder={contactPurpose === 'site-visit' ? 'Any special requests or questions?' : 'I am interested in this property...'}
+          ></textarea>
+        </div>
+        {contactPurpose === 'site-visit' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Preferred Time for Site Visit
+            </label>
+            <input
+              type="datetime-local"
+              name="preferredTime"
+              value={form.preferredTime}
+              onChange={handleContactFormChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
+            />
+          </div>
+        )}
+        {formError && <div className="text-red-500 text-sm">{formError}</div>}
+        {formSuccess && <div className="text-green-600 text-sm">{formSuccess}</div>}
+        <div className="flex space-x-3">
+          <button
+            type="button"
+            onClick={() => setShowContactForm(false)}
+            className="flex-1 py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            disabled={formLoading}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="flex-1 py-2 px-4 bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors"
+            disabled={formLoading}
+          >
+            {formLoading ? 'Submitting...' : 'Submit'}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
       {/* Thank You Modal */}
       {showThankYou && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

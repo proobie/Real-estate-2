@@ -3,7 +3,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { API_BASE_URL } from './api';
 import { PropertyProvider } from './contexts/PropertyContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import LoginForm from './components/auth/LoginForm';
+import LoginForm from './components/auth/LoginRegisterForm';
+import ClientDashboard from './components/dashboard/clientDashboard';
 import AdminDashboard from './components/dashboard/admin/AdminDashboard';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
@@ -23,9 +24,11 @@ import WhatsAppWidget from './components/common/WhatsAppWidget';
 import ChatAssistant from './components/common/ChatAssistant';
 import ProjectsList from './components/projects/ProjectsList';
 import MobileBottomNav from './components/common/MobileBottomNav';
+import Blogs from "./components/blogs/blogs";
+import BlogDetails from './components/blogs/blogdetails';
 
 const EmployeeDashboard = () => <div>Employee Dashboard (Coming Soon)</div>;
-const ClientDashboard = () => <div>Client Dashboard (Coming Soon)</div>;
+
 
 const ProjectDetailsWrapper = () => {
   const { id } = useParams<{ id: string }>();
@@ -119,6 +122,8 @@ function App() {
               <Route path="/projects/:id" element={<ProjectDetailsWrapper />} />
               <Route path="/projects" element={<ProjectsList />} />
               <Route path="/search" element={<SearchResults />} />
+              <Route path="/blogs" element={<Blogs />} />
+              <Route path="/blogs/:id" element={<BlogDetails />} />
               {/* Add other routes as needed */}
             </Routes>
             <WhatsAppWidget />
