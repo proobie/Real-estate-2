@@ -28,6 +28,30 @@ export default {
         'slide-up': 'slide-up 0.3s ease-out',
       },
     },
-  },
-  plugins: [],
+  },typography: {
+      DEFAULT: {
+        css: {
+          color: '#374151',
+          a: {
+            color: '#0A2342', // Your primary color
+            '&:hover': {
+              color: '#1a3b6e', // Your primary-light color
+            },
+          },
+          h2: {
+            color: '#0A2342',
+          },
+          h3: {
+            color: '#0A2342',
+          },
+          strong: {
+            color: '#0A2342',
+          },
+        },
+      },
+    },
+ 
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

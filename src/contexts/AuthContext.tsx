@@ -2,6 +2,14 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { AuthState, AuthContextType, LoginCredentials, User } from '../types/auth';
 import { supabase } from '../supabaseClient';
 
+// Add RegisterData interface
+export interface RegisterData {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
 type AuthAction =
   | { type: 'LOGIN_START' }
   | { type: 'LOGIN_SUCCESS'; payload: User }
@@ -92,6 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name: data.user.user_metadata?.name || 'User',
         role,
         avatar: data.user.user_metadata?.avatar_url || '',
+        phone: data.user.user_metadata?.phone || '', 
         createdAt: data.user.created_at,
         lastLogin: new Date().toISOString(),
       };
@@ -101,6 +110,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'LOGIN_FAILURE', payload: err instanceof Error ? err.message : 'Login failed' });
     }
   };
+
+  // Add the register function
+  const register = async (userData: RegisterData) => {
+  dispatch({ type: 'LOGIN_START' });
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email: userData.email,
+      password: userData.password,
+      options: {
+        data: {
+          name: userData.name,
+          phone: userData.phone,
+          role: 'client',
+          role_key: 'client',
+        },
+      },
+    });
+
+    if (error || !data.user) throw new Error(error?.message || 'Registration failed');
+
+    if (!data.session) {
+      dispatch({
+        type: 'LOGIN_FAILURE',
+        payload: 'Please check your email to confirm your account.'
+      });
+      return null; // explicitly return null
+    }
+
+    const user: User = {
+      id: data.user.id,
+      email: data.user.email || '',
+      name: userData.name,
+      phone: userData.phone,
+      role: 'client',
+      avatar: '',
+      createdAt: data.user.created_at,
+      lastLogin: new Date().toISOString(),
+    };
+
+    dispatch({ type: 'LOGIN_SUCCESS', payload: user });
+    return user; // ✅ Return user object
+  } catch (err) {
+    dispatch({
+      type: 'LOGIN_FAILURE',
+      payload: err instanceof Error ? err.message : 'Registration failed'
+    });
+    return null; // return null on error
+  }
+};
+
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -127,6 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           name: session.user.user_metadata?.name || 'User',
           role,
           avatar: session.user.user_metadata?.avatar_url || '',
+          phone: session.user.user_metadata?.phone || '', 
           createdAt: session.user.created_at,
         }});
       }
@@ -142,6 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           name: session.user.user_metadata?.name || 'User',
           role,
           avatar: session.user.user_metadata?.avatar_url || '',
+          phone: session.user.user_metadata?.phone || '',
           createdAt: session.user.created_at,
         }});
       } else {
@@ -154,6 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthContextType = {
     ...state,
     login,
+    register,
     logout,
     clearError,
     setUser,
@@ -172,4 +234,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}
