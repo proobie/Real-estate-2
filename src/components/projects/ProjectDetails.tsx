@@ -312,7 +312,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
               {/* Tabs */}
               <div className="border-b border-gray-200 mb-6">
-                <nav className="flex space-x-8">
+                <nav className="flex flex-wrap gap-3 sm:gap-4 md:flex-nowrap md:space-x-8">
                   {[
                     { id: 'overview', label: 'Overview' },
                     { id: 'amenities', label: 'Amenities' },
@@ -323,7 +323,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
+                      className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors whitespace-normal break-words text-center ${activeTab === tab.id
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
@@ -742,6 +742,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       )}
       {/* Desktop-only footer */}
       <div className="hidden md:block"><Footer /></div>
+      {/* Mobile bottom spacer to avoid content under mobile nav */}
+      <div className="h-24 md:h-0" />
     </div>
   );
 };

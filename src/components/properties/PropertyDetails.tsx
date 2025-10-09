@@ -35,6 +35,10 @@ const PropertyDetails: React.FC = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [fallbackAgent, setFallbackAgent] = useState<Agent | null>(null);
   const [showThankYou, setShowThankYou] = useState(false);
+  // EMI calculator state (mobile/desktop) - keep UI unchanged, just make it functional
+  const [emiInterestRate, setEmiInterestRate] = useState<number>(8.5);
+  const [emiTenureYears, setEmiTenureYears] = useState<number>(20);
+  const [emiLoanAmount, setEmiLoanAmount] = useState<number>(0);
 
 
   useEffect(() => {
@@ -100,6 +104,13 @@ const PropertyDetails: React.FC = () => {
       setProject(null);
     }
   }, [property]);
+
+  // Initialize EMI loan amount to 80% of price when property loads
+  useEffect(() => {
+    if (property?.price) {
+      setEmiLoanAmount(Math.round(property.price * 0.8));
+    }
+  }, [property?.price]);
 
   // Removed runtime geocoding to avoid CORS; using Google Maps iframe with address
 
@@ -495,7 +506,7 @@ const PropertyDetails: React.FC = () => {
 
               {/* Tabs */}
               <div className="border-b border-gray-200 mb-6">
-                <nav className="flex space-x-8">
+                <nav className="flex flex-wrap gap-3 sm:gap-4 md:flex-nowrap md:space-x-8">
                   {[
                     { id: 'overview', label: 'Overview' },
                     { id: 'amenities', label: 'Amenities' },
@@ -505,7 +516,7 @@ const PropertyDetails: React.FC = () => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
+                      className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors whitespace-normal break-words text-center ${activeTab === tab.id
                         ? 'border-primary text-primary'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
@@ -639,10 +650,14 @@ const PropertyDetails: React.FC = () => {
                         <div className="relative">
                           <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
                           <input
-                            type="text"
-                            value={property.price ? formatPrice(property.price * 0.8) : 'N/A'}
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50"
-                            readOnly
+                            type="number"
+                            value={emiLoanAmount}
+                            onChange={(e) => {
+                              const v = parseFloat(e.target.value);
+                              setEmiLoanAmount(isNaN(v) ? 0 : v);
+                            }}
+                            min={0}
+                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
                           />
                         </div>
                       </div>
@@ -652,7 +667,13 @@ const PropertyDetails: React.FC = () => {
                         </label>
                         <input
                           type="number"
-                          defaultValue="8.5"
+                          value={emiInterestRate}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setEmiInterestRate(isNaN(v) ? 0 : v);
+                          }}
+                          step="0.1"
+                          min="0"
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
                         />
                       </div>
@@ -660,11 +681,15 @@ const PropertyDetails: React.FC = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Loan Tenure (Years)
                         </label>
-                        <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent">
-                          <option value="15">15 Years</option>
-                          <option value="20" selected>20 Years</option>
-                          <option value="25">25 Years</option>
-                          <option value="30">30 Years</option>
+                        <select
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
+                          value={emiTenureYears}
+                          onChange={(e) => setEmiTenureYears(parseInt(e.target.value || '0', 10))}
+                        >
+                          <option value={15}>15 Years</option>
+                          <option value={20}>20 Years</option>
+                          <option value={25}>25 Years</option>
+                          <option value={30}>30 Years</option>
                         </select>
                       </div>
                     </div>
@@ -675,22 +700,38 @@ const PropertyDetails: React.FC = () => {
                           <div className="flex justify-between">
                             <span>Monthly EMI</span>
                             <span className="font-bold text-primary">
-                              {`₹${calculateEMI(property.price * 0.8).toLocaleString('en-IN')}`}
+                              {(() => {
+                                const principal = Math.max(0, emiLoanAmount);
+                                const emi = calculateEMI(principal, emiInterestRate, emiTenureYears);
+                                return `₹${emi.toLocaleString('en-IN')}`;
+                              })()}
                             </span>
                           </div>
                           <div className="flex justify-between">
                             <span>Principal Amount</span>
-                            <span>{formatPrice(property.price * 0.8)}</span>
+                            <span>{formatPrice(Math.max(0, emiLoanAmount))}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Total Interest</span>
                             <span>
-                              {formatPrice((calculateEMI(property.price * 0.8) * 240) - (property.price * 0.8))}
+                              {(() => {
+                                const principal = Math.max(0, emiLoanAmount);
+                                const months = emiTenureYears * 12;
+                                const emi = calculateEMI(principal, emiInterestRate, emiTenureYears);
+                                return formatPrice((emi * months) - principal);
+                              })()}
                             </span>
                           </div>
                           <div className="flex justify-between font-semibold border-t pt-2">
                             <span>Total Amount</span>
-                            <span>{formatPrice(calculateEMI(property.price * 0.8) * 240)}</span>
+                            <span>
+                              {(() => {
+                                const principal = Math.max(0, emiLoanAmount);
+                                const months = emiTenureYears * 12;
+                                const emi = calculateEMI(principal, emiInterestRate, emiTenureYears);
+                                return formatPrice(emi * months);
+                              })()}
+                            </span>
                           </div>
                         </div>
                       ) : (
@@ -939,6 +980,8 @@ const PropertyDetails: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Mobile bottom spacer to avoid content under mobile nav */}
+      <div className="h-24 md:h-0" />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { Phone, Mail, MapPin, Facebook, Youtube, Instagram, Linkedin } from 'lucide-react';
 import LotliteLogo from '../../assets/WhiteLotliteLogo.png';
 
 const Footer: React.FC = () => {
@@ -14,16 +14,16 @@ const Footer: React.FC = () => {
               Your trusted partner in finding the perfect property across India. We specialize in residential and commercial real estate with over 15 years of experience in the Indian market.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-[#A8DADC] hover:text-white transition-colors">
+              <a href="https://www.facebook.com/LotliteRealty/" className="text-[#A8DADC] hover:text-white transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="text-[#A8DADC] hover:text-white transition-colors">
-                <Twitter size={20} />
+              <a href="https://www.youtube.com/@lotliteproperty7994" className="text-[#A8DADC] hover:text-white transition-colors">
+                <Youtube size={20} />
               </a>
-              <a href="#" className="text-[#A8DADC] hover:text-white transition-colors">
+              <a href="https://www.instagram.com/p/DHoivywzUiB/" className="text-[#A8DADC] hover:text-white transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-[#A8DADC] hover:text-white transition-colors">
+              <a href="https://www.linkedin.com/company/lotlite-it-realestate/posts/?feedView=all" className="text-[#A8DADC] hover:text-white transition-colors">
                 <Linkedin size={20} />
               </a>
             </div>
@@ -33,9 +33,9 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-[#A8DADC]">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Buy Properties</a></li>
-              <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Rent Properties</a></li>
-              <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">New Projects</a></li>
+              <li><a href="/search?ltype=sale" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Buy Properties</a></li>
+              <li><a href="/search?ltype=rent" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Rent Properties</a></li>
+              <li><a href="/projects" className="text-[#F1FAEE]/80 hover:text-white transition-colors">New Projects</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Property Valuation</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Home Loans</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">NRI Services</a></li>
@@ -46,9 +46,9 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-[#A8DADC]">Property Types</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">1 BHK Flats</a></li>
-              <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">2 BHK Flats</a></li>
-              <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">3 BHK Flats</a></li>
+              <li><a href="/search?type=1bhk" className="text-[#F1FAEE]/80 hover:text-white transition-colors">1 BHK Flats</a></li>
+              <li><a href="/search?type=2bhk" className="text-[#F1FAEE]/80 hover:text-white transition-colors">2 BHK Flats</a></li>
+              <li><a href="/search?type=3bhk" className="text-[#F1FAEE]/80 hover:text-white transition-colors">3 BHK Flats</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Independent Houses</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Villas & Duplexes</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Plots & Agricultural Land</a></li>

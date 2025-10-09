@@ -440,6 +440,9 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
                   </div>
                 ) : null}
               </div>
+
+              {/* Bottom spacer to prevent last items being hidden behind mobile nav */}
+              <div className="h-10 md:h-0" />
             </div>
 
             {/* Drawer Footer */}
