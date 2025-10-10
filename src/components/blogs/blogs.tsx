@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createClient } from '@supabase/supabase-js';
 import Header from "../common/Header";
 import Footer from "../common/Footer";
+import { supabase } from "../../supabaseClient";
 
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface Blog {
   id: string;
@@ -46,7 +42,7 @@ const Blogs: React.FC = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('Blog_data') 
+        .from('Blog_data')
         .select('*')
         .order('Time', { ascending: false });
 
@@ -64,7 +60,7 @@ const Blogs: React.FC = () => {
   const extractExcerpt = (content: string, maxLength: number = 150) => {
     // Remove HTML tags and extract plain text
     const stripped = content.replace(/<[^>]*>/g, '');
-    return stripped.length > maxLength 
+    return stripped.length > maxLength
       ? stripped.substring(0, maxLength) + '...'
       : stripped;
   };

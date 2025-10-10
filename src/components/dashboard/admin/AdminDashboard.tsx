@@ -14,6 +14,7 @@ import {
   PlusCircle,
   Search,
   Bell,
+  Key,
 
 } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -24,6 +25,7 @@ import ProfileSettings from './ProfileSettings';
 import RolesManagement from './RolesManagement';
 import LotliteLogo from '../../../assets/lotlite-logo.png';
 import UserManagement from './UserManagement';
+import KeyManagement from './KeyManagement';
 
 
 const AdminDashboard: React.FC = () => {
@@ -135,6 +137,7 @@ const AdminDashboard: React.FC = () => {
     { id: 'leads', label: 'Leads', icon: TrendingUp },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'roles', label: 'Roles', icon: UserCheck },
+    { id: 'keys', label: 'Keys', icon: Key },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings }
@@ -285,6 +288,9 @@ const AdminDashboard: React.FC = () => {
 
       case 'roles':
         return <RolesManagement />;
+
+      case 'keys':
+        return <KeyManagement />;
 
       case 'settings':
         return <ProfileSettings />;
