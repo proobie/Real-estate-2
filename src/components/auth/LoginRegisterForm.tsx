@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import LotliteLogo from '../../assets/lotlite-logo.png';
+import LotliteLogo from '../../assets/RedLotliteLogo.png';
 import {
   Lock,
   Mail,
@@ -80,9 +80,9 @@ export default function LoginRegisterForm() {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#D3D3D3] to-[#f3f3f3] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#c8e9ea] to-[#eaf6f7] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        
+
         {/* Back Button */}
         <div className="flex justify-start mb-4">
           <button
@@ -240,7 +240,7 @@ export default function LoginRegisterForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#D4AF37]"
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#E53935] hover:bg-[#D32F2F] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F44336]"
               >
                 {isLoading ? (
                   <div className="flex items-center">

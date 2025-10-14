@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useProperties } from '../../../contexts/PropertyContext';
+import { listUsers } from '../../../api';
 
-type KeyStatus = 'Available' | 'Issued' | 'Returned' | 'Lost';
+type KeyStatus = 'Available' | 'Issued' | 'Returned' | 'Lost' | 'Duplicated';
 
 interface KeyRecord {
   id: string;
@@ -12,11 +13,13 @@ interface KeyRecord {
   issuedOn: string; // ISO date
   returnedOn?: string; // ISO date
   remarks?: string;
+  assignedTo?: string; // user id
   history: Array<{
     holder: string;
     contact: string;
     issuedOn: string;
     returnedOn?: string;
+    assignedTo?: string;
   }>;
 }
 
@@ -30,6 +33,7 @@ const initialData: KeyRecord[] = [
     issuedOn: '2025-10-01',
     returnedOn: '2025-10-03',
     remarks: 'Site visits done',
+    assignedTo: '',
     history: [
       { holder: 'Ramesh (Agent)', contact: '9876543210', issuedOn: '2025-10-01', returnedOn: '2025-10-03' },
       { holder: 'Rajesh (Owner)', contact: '9999999999', issuedOn: '2025-10-03', returnedOn: '2025-10-07' },
@@ -43,6 +47,7 @@ const initialData: KeyRecord[] = [
     status: 'Issued',
     issuedOn: '2025-10-05',
     remarks: 'Showing to clients',
+    assignedTo: '',
     history: [
       { holder: 'Office Reception', contact: '022-12345678', issuedOn: '2025-09-28', returnedOn: '2025-09-29' },
       { holder: 'Sonia (Broker)', contact: '9123456780', issuedOn: '2025-10-05' },
@@ -56,6 +61,7 @@ function statusBadgeColor(status: KeyStatus) {
     case 'Issued': return 'bg-yellow-100 text-yellow-800';
     case 'Returned': return 'bg-blue-100 text-blue-800';
     case 'Lost': return 'bg-red-100 text-red-800';
+    case 'Duplicated': return 'bg-indigo-100 text-indigo-800';
     default: return 'bg-gray-100 text-gray-800';
   }
 }
@@ -67,6 +73,21 @@ export default function KeyManagement() {
   const [historyFor, setHistoryFor] = useState<KeyRecord | null>(null);
   const [editing, setEditing] = useState<KeyRecord | null>(null);
   const { properties } = useProperties();
+  const [users, setUsers] = useState<Array<{ id: string; name?: string; email?: string }>>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setUsersLoading(true);
+    setUsersError(null);
+    listUsers()
+      .then((u) => {
+        const arr = Array.isArray(u) ? u : [];
+        setUsers(arr);
+      })
+      .catch((e: any) => setUsersError(e?.message || 'Failed to load users'))
+      .finally(() => setUsersLoading(false));
+  }, []);
 
   const [form, setForm] = useState({
     propertyId: '',
@@ -159,6 +180,16 @@ export default function KeyManagement() {
     setHistoryFor(rec);
   }
 
+  function assignTo(recId: string, userId: string) {
+    setRecords(prev => prev.map(r => {
+      if (r.id !== recId) return r;
+      const newHistory = r.history.length > 0
+        ? [{ ...r.history[0], assignedTo: userId }, ...r.history.slice(1)]
+        : r.history;
+      return { ...r, assignedTo: userId, history: newHistory };
+    }));
+  }
+
   return (
     <div className="p-4 md:p-6">
       {/* Header */}
@@ -199,6 +230,7 @@ export default function KeyManagement() {
               <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
               <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Issued</th>
               <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Returned</th>
+              <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assign To</th>
               <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
@@ -213,6 +245,19 @@ export default function KeyManagement() {
                 </td>
                 <td className="px-4 md:px-6 py-3 whitespace-nowrap">{rec.issuedOn}</td>
                 <td className="px-4 md:px-6 py-3 whitespace-nowrap">{rec.returnedOn || '-'}</td>
+                <td className="px-4 md:px-6 py-3 whitespace-nowrap">
+                  <select
+                    value={rec.assignedTo || ''}
+                    onChange={(e) => assignTo(rec.id, e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={usersLoading || !!usersError}
+                  >
+                    <option value="">{usersLoading ? 'Loading users…' : (usersError ? 'Users unavailable' : 'Select user…')}</option>
+                    {users.map(u => (
+                      <option key={u.id} value={u.id}>{u.name || u.email || u.id}</option>
+                    ))}
+                  </select>
+                </td>
                 <td className="px-4 md:px-6 py-3 whitespace-nowrap space-x-3">
                   <button className="text-blue-600 hover:underline" onClick={() => viewHistory(rec)}>View History</button>
                   <button className="text-green-600 hover:underline" onClick={() => startEdit(rec)}>Edit</button>
@@ -222,7 +267,7 @@ export default function KeyManagement() {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td className="px-4 md:px-6 py-6 text-center text-gray-500" colSpan={7}>No key records found.</td>
+                <td className="px-4 md:px-6 py-6 text-center text-gray-500" colSpan={8}>No key records found.</td>
               </tr>
             )}
           </tbody>
@@ -263,6 +308,7 @@ export default function KeyManagement() {
                     <option>Issued</option>
                     <option>Returned</option>
                     <option>Lost</option>
+                    <option>Duplicated</option>
                   </select>
                 </div>
               </div>
@@ -310,6 +356,7 @@ export default function KeyManagement() {
                   <tr className="bg-gray-50">
                     <th className="px-4 py-2 text-left">Holder</th>
                     <th className="px-4 py-2 text-left">Contact</th>
+                    <th className="px-4 py-2 text-left">Assigned To</th>
                     <th className="px-4 py-2 text-left">Issued On</th>
                     <th className="px-4 py-2 text-left">Returned On</th>
                   </tr>
@@ -319,6 +366,7 @@ export default function KeyManagement() {
                     <tr key={i} className="text-sm">
                       <td className="px-4 py-2">{h.holder}</td>
                       <td className="px-4 py-2">{h.contact}</td>
+                      <td className="px-4 py-2">{(() => { const u = users.find(u => u.id === h.assignedTo); return u?.name || u?.email || h.assignedTo || '-'; })()}</td>
                       <td className="px-4 py-2">{h.issuedOn}</td>
                       <td className="px-4 py-2">{h.returnedOn || '-'}</td>
                     </tr>
