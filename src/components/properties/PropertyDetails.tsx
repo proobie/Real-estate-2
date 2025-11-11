@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import {
   ArrowLeft, Heart, Share2, MapPin, Bed, Bath, Square, Car,
   Calendar, Home, Shield, CheckCircle, Phone, Mail, MessageCircle,
@@ -16,6 +17,7 @@ import Footer from '../common/Footer';
 const PropertyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { fetchProperty } = useProperties();
   const { user } = useAuth();
@@ -114,13 +116,7 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
 
   // Removed runtime geocoding to avoid CORS; using Google Maps iframe with address
 
-  useEffect(() => {
-    // Check if user already submitted for this property
-    if (property) {
-      const submitted = localStorage.getItem(`lead_submitted_${property.id}`);
-      if (submitted) setShowThankYou(true);
-    }
-  }, [property]);
+  // Removed auto-opening of thank-you modal on page load; it should only show immediately after submission
 
   // Fetch a public fallback contact (from profiles) so anyone can see agent details
   useEffect(() => {
@@ -219,6 +215,11 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
   };
 
   const handleSave = () => {
+    if (!user?.id) {
+      window.alert('Please log in to save properties.');
+      navigate('/login');
+      return;
+    }
     setIsSaved(!isSaved);
   };
 
@@ -249,6 +250,16 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
   });
     setFormError(null);
     setFormSuccess(null);
+  };
+
+  const handleOpenInquiry = () => {
+    if (!user?.id) {
+      window.alert('Please sign in to do inquiry.');
+      const redirect = encodeURIComponent(location.pathname + location.search);
+      navigate(`/login?redirect=${redirect}&inquiry=1`);
+      return;
+    }
+    openContactForm('inquiry');
   };
 
   const handleContactFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -297,7 +308,7 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <button
-              onClick={() => { if (window.history.length > 1) { navigate(-1); } else { navigate('/'); } }}
+              onClick={() => { navigate('/search'); }}
               className="flex items-center space-x-2 text-gray-600 hover:text-primary transition-colors"
             >
               <ArrowLeft size={20} />
@@ -810,8 +821,8 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
               </div>
 
               <div className="space-y-3">
-                <button
-                  onClick={() => openContactForm('inquiry')}
+              <button
+                onClick={handleOpenInquiry}
                   className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
                   disabled={showThankYou}
                 >
@@ -991,6 +1002,17 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
           </div>
         </div>
       )}
+      {/* Auto-open inquiry after login if flagged */}
+      {(() => {
+        try {
+          const params = new URLSearchParams(location.search);
+          if (user?.id && params.get('inquiry') === '1' && !showContactForm && !showThankYou) {
+            // open once on render; imperatively trigger and rely on state to prevent loops
+            setTimeout(() => openContactForm('inquiry'), 0);
+          }
+        } catch {}
+        return null;
+      })()}
       {/* Mobile bottom spacer to avoid content under mobile nav */}
       <div className="h-24 md:h-0" />
     </div>

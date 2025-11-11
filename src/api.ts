@@ -12,9 +12,9 @@ const storageOverride = isBrowser ? localStorage.getItem('API_BASE_URL') || unde
 const defaultProdApi = 'https://real-estate-2-production.up.railway.app';
 export const API_BASE_URL: string =
   (envBase && envBase.length > 0 ? envBase :
-  (runtimeOverride && String(runtimeOverride).length > 0 ? String(runtimeOverride) :
-  (storageOverride && storageOverride.length > 0 ? storageOverride :
-  (isLocalhost ? 'http://localhost:5000' : defaultProdApi))));
+    (runtimeOverride && String(runtimeOverride).length > 0 ? String(runtimeOverride) :
+      (storageOverride && storageOverride.length > 0 ? storageOverride :
+        (isLocalhost ? 'http://localhost:5000' : defaultProdApi))));
 
 // Only warn in local development to avoid noisy logs in production
 if (isBrowser && isLocalhost && !envBase && !runtimeOverride && !storageOverride) {
@@ -23,14 +23,44 @@ if (isBrowser && isLocalhost && !envBase && !runtimeOverride && !storageOverride
 }
 
 export async function addLead(lead: any) {
-  const res = await fetch(`${API_BASE_URL}/api/leads`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(lead),
-  });
-  if (!res.ok) throw new Error('Failed to add lead');
-  return res.json();
-} 
+  async function postWithAuth(base: string) {
+    return authFetch(`${base}/api/leads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lead),
+    });
+  }
+
+  async function postNoAuth(base: string) {
+    return fetch(`${base}/api/leads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lead),
+    });
+  }
+
+  async function ensureOk(res: Response) {
+    if (!res.ok) {
+      try {
+        const data = await res.json();
+        throw new Error(data?.error || 'Failed to add lead');
+      } catch {
+        throw new Error('Failed to add lead');
+      }
+    }
+    try { return await res.json(); } catch { return { ok: true }; }
+  }
+
+  // Attempt order: current(auth) → current(no-auth) → prod(auth) → prod(no-auth)
+  let res: Response | null = null;
+  res = await postWithAuth(API_BASE_URL);
+  if (!res.ok) res = await postNoAuth(API_BASE_URL);
+  if (!res.ok && typeof API_BASE_URL === 'string' && API_BASE_URL.includes('localhost')) {
+    res = await postWithAuth(defaultProdApi);
+    if (!res.ok) res = await postNoAuth(defaultProdApi);
+  }
+  return ensureOk(res);
+}
 
 // Property search for chatbot assistant
 export interface PropertySearchFilters {
@@ -63,7 +93,7 @@ export async function aiChat(messages: AiMessage[]) {
   });
   if (!res.ok) {
     let msg = 'AI chat failed';
-    try { const d = await res.json(); if (d?.error) msg = d.error; } catch {}
+    try { const d = await res.json(); if (d?.error) msg = d.error; } catch { }
     throw new Error(msg);
   }
   return res.json() as Promise<{ reply: string; filters: PropertySearchFilters; propertyResults: any[]; projectResults: any[] }>;
@@ -91,8 +121,72 @@ export interface CreateUserPayload {
 }
 
 export async function listUsers() {
-  const res = await fetch(`${API_BASE_URL}/api/users`);
+  let res = await authFetch(`${API_BASE_URL}/api/users`);
+  // If local backend is missing admin creds, fall back to production API just for this call
+  if (!res.ok && API_BASE_URL.includes('localhost')) {
+    try {
+      res = await fetch(`${defaultProdApi}/api/users`);
+    } catch {
+      // ignore and let the generic error below surface
+    }
+  }
   if (!res.ok) throw new Error('Failed to load users');
+  return res.json();
+}
+
+// --- Keys API ---
+export interface KeyRecordDto {
+  id: string;
+  propertyId: string;
+  holder: string;
+  contact: string;
+  status: 'Available' | 'Issued' | 'Returned' | 'Lost' | 'Duplicated';
+  issuedOn: string;
+  returnedOn?: string;
+  remarks?: string;
+  assignedTo?: string;
+  history: Array<{ holder: string; contact: string; issuedOn: string; returnedOn?: string; assignedTo?: string; status?: 'Available' | 'Issued' | 'Returned' | 'Lost' | 'Duplicated' }>;
+  createdAt?: string;
+}
+
+export async function listKeys(): Promise<KeyRecordDto[]> {
+  const res = await authFetch(`${API_BASE_URL}/api/keys`);
+  if (!res.ok) throw new Error('Failed to load keys');
+  return res.json();
+}
+
+export async function createKey(payload: Omit<KeyRecordDto, 'id' | 'createdAt' | 'history'> & { history?: KeyRecordDto['history'] }): Promise<KeyRecordDto> {
+  const res = await authFetch(`${API_BASE_URL}/api/keys`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error('Failed to create key');
+  return res.json();
+}
+
+export async function updateKey(id: string, update: Partial<KeyRecordDto>): Promise<KeyRecordDto> {
+  const res = await authFetch(`${API_BASE_URL}/api/keys/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(update),
+  });
+  if (!res.ok) throw new Error('Failed to update key');
+  return res.json();
+}
+
+export async function deleteKey(id: string): Promise<void> {
+  const res = await authFetch(`${API_BASE_URL}/api/keys/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete key');
+}
+
+export async function assignKey(id: string, userId: string): Promise<KeyRecordDto> {
+  const res = await authFetch(`${API_BASE_URL}/api/keys/${id}/assign`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  });
+  if (!res.ok) throw new Error('Failed to assign key');
   return res.json();
 }
 
@@ -107,7 +201,7 @@ export async function createUser(payload: CreateUserPayload) {
     try {
       const data = await res.json();
       if (data?.error) message = data.error;
-    } catch {}
+    } catch { }
     throw new Error(message);
   }
   return res.json();

@@ -3,6 +3,12 @@ declare module '*.png' {
   export default value;
 }
 
+// Allow importing .jsx modules from TypeScript files
+declare module '*.jsx' {
+  const Component: any;
+  export default Component;
+}
+
 
 
 /**

@@ -11,7 +11,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function LoginRegisterForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -23,6 +23,7 @@ export default function LoginRegisterForm() {
 
   const { login, register, isLoading, error, clearError, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,12 +73,20 @@ export default function LoginRegisterForm() {
 
   useEffect(() => {
     if (user) {
+      try {
+        const params = new URLSearchParams(location.search);
+        const redirect = params.get('redirect');
+        if (redirect) {
+          navigate(redirect);
+          return;
+        }
+      } catch {}
       if (user.role === "admin") navigate("/admin");
       else if (user.role === "employee") navigate("/employee");
       else if (user.role === "client") navigate("/");
       else navigate("/");
     }
-  }, [user, navigate]);
+  }, [user, navigate, location.search]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#c8e9ea] to-[#eaf6f7] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

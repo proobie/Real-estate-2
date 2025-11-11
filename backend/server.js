@@ -557,6 +557,21 @@ app.get('/api/leads', async (req, res) => {
         console.error('Error fetching leads:', error);
         return res.status(500).json({ error: error.message });
     }
+    // Fetch property titles for leads that have property_id
+    const propertyIds = (data || []).filter(l => l.property_id).map(l => l.property_id);
+    let propertyMap = {};
+    if (propertyIds.length > 0) {
+        const { data: properties } = await exports.supabase
+            .from('properties')
+            .select('id, title')
+            .in('id', propertyIds);
+        if (properties) {
+            propertyMap = properties.reduce((acc, p) => {
+                acc[p.id] = p.title;
+                return acc;
+            }, {});
+        }
+    }
     return res.json((data || []).map((l) => ({
         id: l.id,
         name: l.name,
@@ -568,10 +583,12 @@ app.get('/api/leads', async (req, res) => {
         status: l.status,
         assignedTo: l.assigned_to,
         createdAt: l.created_at,
+        updatedAt: l.updated_at || null,
         notes: l.notes,
         communicationLog: l.communication_log || [],
         reminders: l.reminders || [],
         propertyId: l.property_id,
+        propertyTitle: l.property_id ? (propertyMap[l.property_id] || null) : null,
     })));
 });
 // @ts-ignore
@@ -596,6 +613,15 @@ app.post('/api/leads', async (req, res) => {
         console.error('Error adding lead:', error);
         return res.status(500).json({ error: error.message });
     }
+    let propertyTitle = null;
+    if (data.property_id) {
+        const { data: property } = await exports.supabase
+            .from('properties')
+            .select('title')
+            .eq('id', data.property_id)
+            .single();
+        propertyTitle = property?.title || null;
+    }
     return res.status(201).json({
         id: data.id,
         name: data.name,
@@ -607,10 +633,12 @@ app.post('/api/leads', async (req, res) => {
         status: data.status,
         assignedTo: data.assigned_to,
         createdAt: data.created_at,
+        updatedAt: data.updated_at || null,
         notes: data.notes,
         communicationLog: data.communication_log || [],
         reminders: data.reminders || [],
         propertyId: data.property_id,
+        propertyTitle: propertyTitle,
     });
 });
 // @ts-ignore
@@ -618,6 +646,15 @@ app.get('/api/leads/:id', async (req, res) => {
     const { data, error } = await exports.supabase.from('leads').select('*').eq('id', req.params.id).single();
     if (error || !data)
         return res.status(404).json({ error: 'Lead not found' });
+    let propertyTitle = null;
+    if (data.property_id) {
+        const { data: property } = await exports.supabase
+            .from('properties')
+            .select('title')
+            .eq('id', data.property_id)
+            .single();
+        propertyTitle = property?.title || null;
+    }
     return res.json({
         id: data.id,
         name: data.name,
@@ -629,10 +666,12 @@ app.get('/api/leads/:id', async (req, res) => {
         status: data.status,
         assignedTo: data.assigned_to,
         createdAt: data.created_at,
+        updatedAt: data.updated_at || null,
         notes: data.notes,
         communicationLog: data.communication_log || [],
         reminders: data.reminders || [],
         propertyId: data.property_id,
+        propertyTitle: propertyTitle,
     });
 });
 // @ts-ignore
@@ -656,6 +695,7 @@ app.put('/api/leads/:id', async (req, res) => {
         status: data.status,
         assignedTo: data.assigned_to,
         createdAt: data.created_at,
+        updatedAt: data.updated_at || null,
         notes: data.notes,
         communicationLog: data.communication_log || [],
         reminders: data.reminders || [],
@@ -682,6 +722,15 @@ app.post('/api/leads/:id/communication', async (req, res) => {
     const { data, error } = await exports.supabase.from('leads').update({ communication_log: log }).eq('id', id).select('*').single();
     if (error)
         return res.status(500).json({ error: error.message });
+    let propertyTitle = null;
+    if (data.property_id) {
+        const { data: property } = await exports.supabase
+            .from('properties')
+            .select('title')
+            .eq('id', data.property_id)
+            .single();
+        propertyTitle = property?.title || null;
+    }
     return res.json({
         id: data.id,
         name: data.name,
@@ -693,10 +742,12 @@ app.post('/api/leads/:id/communication', async (req, res) => {
         status: data.status,
         assignedTo: data.assigned_to,
         createdAt: data.created_at,
+        updatedAt: data.updated_at || null,
         notes: data.notes,
         communicationLog: data.communication_log || [],
         reminders: data.reminders || [],
         propertyId: data.property_id,
+        propertyTitle: propertyTitle,
     });
 });
 // @ts-ignore
@@ -711,6 +762,15 @@ app.post('/api/leads/:id/reminder', async (req, res) => {
     const { data, error } = await exports.supabase.from('leads').update({ reminders }).eq('id', id).select('*').single();
     if (error)
         return res.status(500).json({ error: error.message });
+    let propertyTitle = null;
+    if (data.property_id) {
+        const { data: property } = await exports.supabase
+            .from('properties')
+            .select('title')
+            .eq('id', data.property_id)
+            .single();
+        propertyTitle = property?.title || null;
+    }
     return res.json({
         id: data.id,
         name: data.name,
@@ -722,10 +782,12 @@ app.post('/api/leads/:id/reminder', async (req, res) => {
         status: data.status,
         assignedTo: data.assigned_to,
         createdAt: data.created_at,
+        updatedAt: data.updated_at || null,
         notes: data.notes,
         communicationLog: data.communication_log || [],
         reminders: data.reminders || [],
         propertyId: data.property_id,
+        propertyTitle: propertyTitle,
     });
 });
 

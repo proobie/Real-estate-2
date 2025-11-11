@@ -3,6 +3,7 @@ import { Heart, MapPin, Bed, Bath, Square, Camera, Share2 } from 'lucide-react';
 import { Property, Agent } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 interface PropertyCardProps {
   property: Property;
@@ -25,6 +26,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { user } = useAuth();
   const [fallbackAgent, setFallbackAgent] = useState<Agent | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -68,10 +70,70 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     return fallbackAgent || undefined;
   })();
 
-  const handleSave = () => {
-    const newIsSaved = !isSaved;
-    setIsSaved(newIsSaved);
-    onSave?.(property.id, newIsSaved);
+  useEffect(() => {
+    if (user?.id) {
+      setIsSaved(initialIsSaved);
+    } else {
+      setIsSaved(false);
+    }
+  }, [initialIsSaved, user?.id]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (!user?.id) {
+          setIsSaved(false);
+          return;
+        }
+        const { data, error } = await supabase
+          .from('saved_properties')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('property_id', property.id)
+          .maybeSingle();
+        if (!error) setIsSaved(Boolean(data));
+      } catch { /* ignore */ }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, property.id]);
+
+  const handleSave = async () => {
+    if (!user?.id) {
+      window.alert('Please log in to save properties.');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      if (isSaved) {
+        const { error } = await supabase
+          .from('saved_properties')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('property_id', property.id);
+        if (error) throw error;
+        setIsSaved(false);
+        onSave?.(property.id, false);
+      } else {
+        const { error } = await supabase
+          .from('saved_properties')
+          .insert({ user_id: user.id, property_id: property.id });
+        if (error) throw error;
+        setIsSaved(true);
+        onSave?.(property.id, true);
+      }
+    } catch {
+      // Fallback to per-user localStorage when Supabase is unavailable
+      try {
+        const key = `saved_props:${user.id}`;
+        const savedIds: string[] = JSON.parse(localStorage.getItem(key) || '[]');
+        const exists = savedIds.includes(property.id);
+        const next = exists ? savedIds.filter(id => id !== property.id) : [...savedIds, property.id];
+        localStorage.setItem(key, JSON.stringify(next));
+        setIsSaved(!exists);
+        onSave?.(property.id, !exists);
+      } catch { /* ignore */ }
+    }
   };
 
   const handleShare = () => {

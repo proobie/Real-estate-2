@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useProperties } from '../../../contexts/PropertyContext';
-import { listUsers } from '../../../api';
+import { listUsers, listKeys, createKey as apiCreateKey, updateKey as apiUpdateKey, deleteKey as apiDeleteKey, assignKey as apiAssignKey } from '../../../api';
 
 type KeyStatus = 'Available' | 'Issued' | 'Returned' | 'Lost' | 'Duplicated';
 
@@ -20,40 +20,11 @@ interface KeyRecord {
     issuedOn: string;
     returnedOn?: string;
     assignedTo?: string;
+    status?: KeyStatus;
   }>;
 }
 
-const initialData: KeyRecord[] = [
-  {
-    id: 'k-201',
-    propertyId: 'prop-201',
-    holder: 'Ramesh (Agent)',
-    contact: '9876543210',
-    status: 'Returned',
-    issuedOn: '2025-10-01',
-    returnedOn: '2025-10-03',
-    remarks: 'Site visits done',
-    assignedTo: '',
-    history: [
-      { holder: 'Ramesh (Agent)', contact: '9876543210', issuedOn: '2025-10-01', returnedOn: '2025-10-03' },
-      { holder: 'Rajesh (Owner)', contact: '9999999999', issuedOn: '2025-10-03', returnedOn: '2025-10-07' },
-    ],
-  },
-  {
-    id: 'k-305',
-    propertyId: 'prop-305',
-    holder: 'Sonia (Broker)',
-    contact: '9123456780',
-    status: 'Issued',
-    issuedOn: '2025-10-05',
-    remarks: 'Showing to clients',
-    assignedTo: '',
-    history: [
-      { holder: 'Office Reception', contact: '022-12345678', issuedOn: '2025-09-28', returnedOn: '2025-09-29' },
-      { holder: 'Sonia (Broker)', contact: '9123456780', issuedOn: '2025-10-05' },
-    ],
-  },
-];
+const initialData: KeyRecord[] = [];
 
 function statusBadgeColor(status: KeyStatus) {
   switch (status) {
@@ -76,6 +47,8 @@ export default function KeyManagement() {
   const [users, setUsers] = useState<Array<{ id: string; name?: string; email?: string }>>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState<string | null>(null);
+  const [keysLoading, setKeysLoading] = useState(false);
+  const [keysError, setKeysError] = useState<string | null>(null);
 
   useEffect(() => {
     setUsersLoading(true);
@@ -87,6 +60,18 @@ export default function KeyManagement() {
       })
       .catch((e: any) => setUsersError(e?.message || 'Failed to load users'))
       .finally(() => setUsersLoading(false));
+  }, []);
+
+  useEffect(() => {
+    setKeysLoading(true);
+    setKeysError(null);
+    listKeys()
+      .then((ks) => {
+        const arr = Array.isArray(ks) ? ks : [];
+        setRecords(arr as unknown as KeyRecord[]);
+      })
+      .catch((e: any) => setKeysError(e?.message || 'Failed to load keys'))
+      .finally(() => setKeysLoading(false));
   }, []);
 
   const [form, setForm] = useState({
@@ -114,23 +99,26 @@ export default function KeyManagement() {
     setNoReturnYet(false);
   }
 
-  function addKey(e: React.FormEvent) {
+  async function addKey(e: React.FormEvent) {
     e.preventDefault();
-    const id = `k-${Math.random().toString(36).slice(2, 7)}`;
-    const newRec: KeyRecord = {
-      id,
-      propertyId: form.propertyId,
-      holder: form.holder,
-      contact: form.contact,
-      status: form.status,
-      issuedOn: form.issuedOn,
-      returnedOn: form.returnedOn || undefined,
-      remarks: form.remarks || undefined,
-      history: [{ holder: form.holder, contact: form.contact, issuedOn: form.issuedOn, returnedOn: form.returnedOn || undefined }],
-    };
-    setRecords(prev => [newRec, ...prev]);
-    resetForm();
-    setShowModal(false);
+    try {
+      const payload = {
+        propertyId: form.propertyId,
+        holder: form.holder,
+        contact: form.contact,
+        status: form.status,
+        issuedOn: form.issuedOn,
+        returnedOn: form.returnedOn || undefined,
+        remarks: form.remarks || undefined,
+        history: [{ holder: form.holder, contact: form.contact, issuedOn: form.issuedOn, returnedOn: form.returnedOn || undefined, status: form.status }],
+      } as any;
+      const created = await apiCreateKey(payload);
+      setRecords(prev => [created as unknown as KeyRecord, ...prev]);
+      resetForm();
+      setShowModal(false);
+    } catch (e: any) {
+      alert(e?.message || 'Failed to create key');
+    }
   }
 
   function startEdit(rec: KeyRecord) {
@@ -148,46 +136,55 @@ export default function KeyManagement() {
     setShowModal(true);
   }
 
-  function editKey(e: React.FormEvent) {
+  async function editKey(e: React.FormEvent) {
     e.preventDefault();
     if (!editing) return;
-    const updated: KeyRecord = {
-      ...editing,
-      propertyId: form.propertyId,
-      holder: form.holder,
-      contact: form.contact,
-      status: form.status,
-      issuedOn: form.issuedOn,
-      returnedOn: form.returnedOn || undefined,
-      remarks: form.remarks || undefined,
-      history: [
-        { holder: form.holder, contact: form.contact, issuedOn: form.issuedOn, returnedOn: form.returnedOn || undefined },
+    try {
+      const updatedHistory = [
+        { holder: form.holder, contact: form.contact, issuedOn: form.issuedOn, returnedOn: form.returnedOn || undefined, status: form.status },
         ...editing.history,
-      ],
-    };
-    setRecords(prev => prev.map(r => r.id === editing.id ? updated : r));
-    setEditing(null);
-    resetForm();
-    setShowModal(false);
+      ];
+      const toSend: any = {
+        propertyId: form.propertyId,
+        holder: form.holder,
+        contact: form.contact,
+        status: form.status,
+        issuedOn: form.issuedOn,
+        returnedOn: form.returnedOn || undefined,
+        remarks: form.remarks || undefined,
+        history: updatedHistory,
+      };
+      const saved = await apiUpdateKey(editing.id, toSend);
+      setRecords(prev => prev.map(r => r.id === editing.id ? (saved as unknown as KeyRecord) : r));
+      setEditing(null);
+      resetForm();
+      setShowModal(false);
+    } catch (e: any) {
+      alert(e?.message || 'Failed to update key');
+    }
   }
 
-  function deleteKey(id: string) {
+  async function deleteKey(id: string) {
     if (!confirm('Delete this key record?')) return;
-    setRecords(prev => prev.filter(r => r.id !== id));
+    try {
+      await apiDeleteKey(id);
+      setRecords(prev => prev.filter(r => r.id !== id));
+    } catch (e: any) {
+      alert(e?.message || 'Failed to delete key');
+    }
   }
 
   function viewHistory(rec: KeyRecord) {
     setHistoryFor(rec);
   }
 
-  function assignTo(recId: string, userId: string) {
-    setRecords(prev => prev.map(r => {
-      if (r.id !== recId) return r;
-      const newHistory = r.history.length > 0
-        ? [{ ...r.history[0], assignedTo: userId }, ...r.history.slice(1)]
-        : r.history;
-      return { ...r, assignedTo: userId, history: newHistory };
-    }));
+  async function assignTo(recId: string, userId: string) {
+    try {
+      const saved = await apiAssignKey(recId, userId);
+      setRecords(prev => prev.map(r => r.id === recId ? (saved as unknown as KeyRecord) : r));
+    } catch (e: any) {
+      alert(e?.message || 'Failed to assign key');
+    }
   }
 
   return (
@@ -221,6 +218,8 @@ export default function KeyManagement() {
 
       {/* Table */}
       <div className="bg-white rounded-lg shadow-sm border overflow-x-auto">
+        {keysLoading && <div className="p-3 text-gray-500">Loading keys...</div>}
+        {keysError && <div className="p-3 text-red-600">{keysError}</div>}
         <table className="min-w-full">
           <thead>
             <tr className="bg-gray-50">
@@ -356,6 +355,7 @@ export default function KeyManagement() {
                   <tr className="bg-gray-50">
                     <th className="px-4 py-2 text-left">Holder</th>
                     <th className="px-4 py-2 text-left">Contact</th>
+                    <th className="px-4 py-2 text-left">Status</th>
                     <th className="px-4 py-2 text-left">Assigned To</th>
                     <th className="px-4 py-2 text-left">Issued On</th>
                     <th className="px-4 py-2 text-left">Returned On</th>
@@ -366,6 +366,7 @@ export default function KeyManagement() {
                     <tr key={i} className="text-sm">
                       <td className="px-4 py-2">{h.holder}</td>
                       <td className="px-4 py-2">{h.contact}</td>
+                      <td className="px-4 py-2">{h.status || '-'}</td>
                       <td className="px-4 py-2">{(() => { const u = users.find(u => u.id === h.assignedTo); return u?.name || u?.email || h.assignedTo || '-'; })()}</td>
                       <td className="px-4 py-2">{h.issuedOn}</td>
                       <td className="px-4 py-2">{h.returnedOn || '-'}</td>

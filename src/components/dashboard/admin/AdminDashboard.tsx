@@ -23,7 +23,7 @@ import ProjectManagement from './ProjectManagement';
 import LeadManagement from './LeadManagement';
 import ProfileSettings from './ProfileSettings';
 import RolesManagement from './RolesManagement';
-import LotliteLogo from '../../../assets/lotlite-logo.png';
+import LotliteLogo from '../../../assets/RedLotliteLogo.png';
 import UserManagement from './UserManagement';
 import KeyManagement from './KeyManagement';
 
@@ -317,15 +317,11 @@ const AdminDashboard: React.FC = () => {
       {/* Sidebar (desktop) */}
       <div className="hidden md:block w-64 bg-white shadow-lg">
         <div className="p-6 border-b">
-          <div className="flex items-center">
+          <div className="flex flex-col items-start">
             <div className=" p-3 ">
-              <img src={LotliteLogo} alt="Lotlite Logo" className="h-11 w-11" />
+              <img src={LotliteLogo} alt="Lotlite Logo" className="h-7 md:h-9 w-auto" />
             </div>
-
-            <div className="ml-3">
-              <h2 className="text-lg font-semibold text-gray-900">Lotlite</h2>
-              <p className="text-sm text-gray-500">Admin Panel</p>
-            </div>
+            <p className="text-sm text-gray-500 -mt-1 ml-3">Admin Panel</p>
           </div>
         </div>
 
@@ -375,12 +371,9 @@ const AdminDashboard: React.FC = () => {
           <div className="absolute inset-0 bg-black/40" onClick={() => setIsSidebarOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-full bg-white shadow-2xl flex flex-col">
             <div className="p-6 border-b flex items-center justify-between">
-              <div className="flex items-center">
-                <img src={LotliteLogo} alt="Lotlite Logo" className="h-8 w-8" />
-                <div className="ml-3">
-                  <h2 className="text-base font-semibold text-gray-900">Lotlite</h2>
-                  <p className="text-xs text-gray-500">Admin Panel</p>
-                </div>
+              <div className="flex flex-col items-start">
+                <img src={LotliteLogo} alt="Lotlite Logo" className="h-6 w-auto" />
+                <p className="text-xs text-gray-500 mt-1 ml-2">Admin Panel</p>
               </div>
               <button onClick={() => setIsSidebarOpen(false)} className="p-2 rounded hover:bg-gray-100">
                 ✕

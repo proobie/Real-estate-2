@@ -48,12 +48,24 @@ if (!supabaseKey) {
 }
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+// For endpoints that should respect the end-user's JWT under RLS (when service key is missing),
+// create a per-request client that forwards the Authorization header to PostgREST.
+function getSupabaseDbForRequest(req: Request) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader : '';
+  return createClient(supabaseUrl, supabaseKey, {
+    global: {
+      headers: token ? { Authorization: token } : undefined,
+    },
+  });
+}
+
 // --- OpenAI setup (optional) ---
 const openaiApiKey = (process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '').toString().trim();
 const openai = openaiApiKey ? new OpenAI({ apiKey: openaiApiKey }) : null as unknown as OpenAI;
 
 // --- Auth/Permission helpers ---
-type Section = 'properties' | 'projects' | 'leads' | 'roles';
+type Section = 'properties' | 'projects' | 'leads' | 'roles' | 'keys';
 type Action = 'view' | 'create' | 'edit' | 'delete';
 
 async function getUserFromRequest(req: Request) {
@@ -74,6 +86,7 @@ async function getPermissionsForUser(user: any) {
       projects: { view: true, create: true, edit: true, delete: true },
       leads: { view: true, create: true, edit: true, delete: true },
       roles: { view: true, create: true, edit: true, delete: true },
+      keys: { view: true, create: true, edit: true, delete: true },
     } as Record<string, Record<string, boolean>>;
   }
   if (!roleKey) return {};
@@ -729,6 +742,146 @@ app.delete('/api/properties/:id', async (req: Request, res: Response) => {
     return;
   }
   res.status(204).send();
+});
+
+// --- KEYS API USING SUPABASE ---
+// Table: keys
+// Columns: id uuid pk default gen_random_uuid(), property_id uuid, holder text, contact text, status text, issued_on date, returned_on date null, remarks text, assigned_to uuid null, history jsonb default '[]', created_at timestamptz default now(), updated_at timestamptz default now()
+// Minimal CRUD with permissions similar to leads
+
+// Get all key records
+// @ts-ignore
+app.get('/api/keys', requirePermission('keys', 'view'), async (req: Request, res: Response) => {
+  const db = getSupabaseDbForRequest(req);
+  const { data, error } = await db
+    .from('keys')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) { res.status(500).json({ error: error.message }); return; }
+  res.json((data || []).map((r: any) => ({
+    id: r.id,
+    propertyId: r.property_id,
+    holder: r.holder,
+    contact: r.contact,
+    status: r.status,
+    issuedOn: r.issued_on,
+    returnedOn: r.returned_on,
+    remarks: r.remarks,
+    assignedTo: r.assigned_to,
+    history: r.history || [],
+    createdAt: r.created_at,
+  })));
+});
+
+// Create key record
+// @ts-ignore
+app.post('/api/keys', requirePermission('keys', 'create'), async (req: Request, res: Response) => {
+  const db = getSupabaseDbForRequest(req);
+  const d = req.body || {};
+  const payload = {
+    property_id: d.propertyId,
+    holder: d.holder,
+    contact: d.contact,
+    status: d.status,
+    issued_on: d.issuedOn,
+    returned_on: d.returnedOn || null,
+    remarks: d.remarks || '',
+    assigned_to: d.assignedTo || null,
+    history: Array.isArray(d.history) ? d.history : [],
+  };
+  const { data, error } = await db.from('keys').insert(payload).select('*').single();
+  if (error) { res.status(500).json({ error: error.message }); return; }
+  res.status(201).json({
+    id: data.id,
+    propertyId: data.property_id,
+    holder: data.holder,
+    contact: data.contact,
+    status: data.status,
+    issuedOn: data.issued_on,
+    returnedOn: data.returned_on,
+    remarks: data.remarks,
+    assignedTo: data.assigned_to,
+    history: data.history || [],
+    createdAt: data.created_at,
+  });
+});
+
+// Update key record
+// @ts-ignore
+app.put('/api/keys/:id', requirePermission('keys', 'edit'), async (req: Request, res: Response) => {
+  const db = getSupabaseDbForRequest(req);
+  const { id } = req.params;
+  const d = req.body || {};
+  const map: Record<string, string> = {
+    propertyId: 'property_id',
+    issuedOn: 'issued_on',
+    returnedOn: 'returned_on',
+    assignedTo: 'assigned_to',
+  } as const;
+  const update: any = {};
+  Object.keys(d).forEach((k) => {
+    const col = (map as any)[k] || k;
+    update[col] = d[k];
+  });
+  const { data, error } = await db.from('keys').update(update).eq('id', id).select('*').single();
+  if (error) { res.status(500).json({ error: error.message }); return; }
+  res.json({
+    id: data.id,
+    propertyId: data.property_id,
+    holder: data.holder,
+    contact: data.contact,
+    status: data.status,
+    issuedOn: data.issued_on,
+    returnedOn: data.returned_on,
+    remarks: data.remarks,
+    assignedTo: data.assigned_to,
+    history: data.history || [],
+    createdAt: data.created_at,
+  });
+});
+
+// Delete key record
+// @ts-ignore
+app.delete('/api/keys/:id', requirePermission('keys', 'delete'), async (req: Request, res: Response) => {
+  const db = getSupabaseDbForRequest(req);
+  const { id } = req.params;
+  const { error } = await db.from('keys').delete().eq('id', id);
+  if (error) { res.status(500).json({ error: error.message }); return; }
+  res.status(204).send();
+});
+
+// Assign key to a user and append to history
+// @ts-ignore
+app.post('/api/keys/:id/assign', requirePermission('keys', 'edit'), async (req: Request, res: Response) => {
+  const db = getSupabaseDbForRequest(req);
+  const { id } = req.params;
+  const { userId } = req.body || {};
+  const { data: rec, error: fetchErr } = await db.from('keys').select('*').eq('id', id).single();
+  if (fetchErr || !rec) { res.status(404).json({ error: 'Not found' }); return; }
+  const history = Array.isArray(rec.history) ? rec.history : [];
+  const newHistory = history.length > 0
+    ? [{ ...history[0], assignedTo: userId }, ...history.slice(1)]
+    : history;
+  const { data, error } = await db
+    .from('keys')
+    .update({ assigned_to: userId, history: newHistory })
+    .eq('id', id)
+    .select('*')
+    .single();
+  if (error) { res.status(500).json({ error: error.message }); return; }
+  res.json({
+    id: data.id,
+    propertyId: data.property_id,
+    holder: data.holder,
+    contact: data.contact,
+    status: data.status,
+    issuedOn: data.issued_on,
+    returnedOn: data.returned_on,
+    remarks: data.remarks,
+    assignedTo: data.assigned_to,
+    history: data.history || [],
+    createdAt: data.created_at,
+  });
 });
 
 // --- USERS (AUTH) API USING SUPABASE ADMIN ---

@@ -4,7 +4,7 @@ import { API_BASE_URL } from './api';
 import { PropertyProvider } from './contexts/PropertyContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import LoginForm from './components/auth/LoginRegisterForm';
-import ClientDashboard from './components/dashboard/clientDashboard';
+import ClientDashboard from './components/dashboard/client/ClientDashboard';
 import AdminDashboard from './components/dashboard/admin/AdminDashboard';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
