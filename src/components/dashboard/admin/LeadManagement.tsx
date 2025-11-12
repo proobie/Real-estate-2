@@ -343,122 +343,221 @@ const LeadManagement: React.FC = () => {
         </div>
       )}
       {viewLead && (
-        <div className="fixed inset-0 z-50 flex">
-          {/* Overlay */}
-          <div className="fixed inset-0 bg-black bg-opacity-40 transition-opacity" onClick={() => setViewLead(null)} />
-          {/* Drawer */}
-          <div className="relative ml-auto h-full w-full max-w-xl bg-white shadow-2xl flex flex-col animate-slideInRight">
-            {/* Sticky Header */}
-            <div className="sticky top-0 z-10 bg-white border-b flex items-center justify-between px-6 py-4">
-              <h2 className="text-2xl font-bold">Lead Details</h2>
-              <button
-                className="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onClick={() => setViewLead(null)}
-                aria-label="Close"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            {/* Content */}
-            <div className="overflow-y-auto flex-1 px-6 py-4 space-y-6">
-              {/* Lead Info Card */}
-              <div className="bg-gray-50 rounded-lg shadow p-4 space-y-2">
-                <div className="text-lg font-semibold mb-2">Lead Info</div>
-                <div><span className="font-medium">Name:</span> {viewLead.name}</div>
-                <div><span className="font-medium">Email:</span> {viewLead.email}</div>
-                <div><span className="font-medium">Phone:</span> {viewLead.phone}</div>
-                <div><span className="font-medium">Source:</span> {viewLead.source}</div>
-                <div><span className="font-medium">Type:</span> {viewLead.type}</div>
-                <div><span className="font-medium">Priority:</span> {viewLead.priority}</div>
-                <div><span className="font-medium">Status:</span> {viewLead.status}</div>
-                <div><span className="font-medium">Assigned To:</span> {viewLead.assignedTo || '-'}</div>
-                <div><span className="font-medium">Created At:</span> {new Date(viewLead.createdAt).toLocaleString('en-IN')}</div>
-                {viewLead.notes && <div><span className="font-medium">Notes:</span> {viewLead.notes}</div>}
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setViewLead(null)}
+          />
+          <div className="relative z-10 flex min-h-full items-start justify-center overflow-y-auto p-4 md:p-6 lg:p-8">
+            <div
+              className="relative flex w-full max-w-6xl flex-col rounded-2xl bg-white shadow-2xl max-h-[92vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col gap-4 border-b border-gray-200 bg-gray-50 px-6 py-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-900">Lead Details</h2>
+                  <p className="text-sm text-gray-500">
+                    Created on {viewLead.createdAt ? new Date(viewLead.createdAt).toLocaleString('en-IN') : '—'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 capitalize">
+                    {viewLead.status}
+                  </span>
+                  <button
+                    onClick={() => setViewLead(null)}
+                    className="inline-flex items-center rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-gray-600 hover:bg-white hover:text-gray-900 transition"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
-              {/* Communication Log Card */}
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-lg font-semibold mb-2">Communication Log</div>
-                {Array.isArray((viewLead as any).communicationLog) && ((viewLead as any).communicationLog.length === 0 ? (
-                  <div className="text-gray-500 text-sm">No communications yet.</div>
-                ) : (
-                  <ul className="space-y-2 max-h-32 overflow-y-auto pr-2">
-                    {(viewLead as any).communicationLog.map((log: any, idx: number) => (
-                      <li key={idx} className="text-sm border-b pb-1">
-                        <span className="font-medium capitalize">{log.type}</span> - {log.content} <span className="text-gray-400">({new Date(log.timestamp).toLocaleString('en-IN')})</span>
-                      </li>
-                    ))}
-                  </ul>
-                ))}
-              </div>
-              {/* Add Communication */}
-              <div className="bg-white rounded-lg shadow p-4">
-                <form onSubmit={e => { e.preventDefault(); handleAddComm(viewLead.id); }} className="space-y-2">
-                  <div className="text-lg font-semibold mb-2">Add Communication</div>
-                  <div>
-                    <label className="block mb-1 font-medium">Type</label>
-                    <select name="type" value={commForm.type} onChange={e => setCommForm(prev => ({ ...prev, type: e.target.value }))} className="w-full px-3 py-2 border rounded">
-                      {commTypes.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                    </select>
+
+              <div className="flex-1 overflow-y-auto px-6 py-6">
+                <div className="grid gap-6 lg:grid-cols-2 bg-white">
+                  {/* Left column */}
+                  <div className="space-y-6 pb-6 lg:pb-0">
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Client Information</h3>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Client Name</label>
+                          <input value={viewLead.name || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Email</label>
+                          <input value={viewLead.email || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                        </div>
+                        <div className="space-y-2 sm:col-span-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Phone</label>
+                          <div className="flex gap-3">
+                            <input value="+91" readOnly className="w-20 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                            <input value={viewLead.phone || '—'} readOnly className="flex-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Source</label>
+                          <input value={viewLead.source || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Type</label>
+                          <input value={viewLead.type || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Priority</label>
+                          <input value={viewLead.priority || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Assigned To</label>
+                          <input value={viewLead.assignedTo || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Notes & Requirement</h3>
+                      <textarea
+                        value={viewLead.notes || 'No notes added for this lead.'}
+                        readOnly
+                        rows={6}
+                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block mb-1 font-medium">Content</label>
-                    <textarea name="content" value={commForm.content} onChange={e => setCommForm(prev => ({ ...prev, content: e.target.value }))} className="w-full px-3 py-2 border rounded" rows={2} />
+
+                  {/* Right column */}
+                  <div className="space-y-6">
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Communication Log</h3>
+                      {Array.isArray((viewLead as any).communicationLog) && ((viewLead as any).communicationLog.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-400">
+                          No communications yet.
+                        </div>
+                      ) : (
+                        <ul className="space-y-3 max-h-56 overflow-y-auto pr-2">
+                          {(viewLead as any).communicationLog.map((log: any, idx: number) => (
+                            <li key={idx} className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm">
+                              <div className="flex items-center justify-between">
+                                <span className="font-semibold capitalize text-gray-900">{log.type}</span>
+                                <span className="text-xs text-gray-400">{new Date(log.timestamp).toLocaleString('en-IN')}</span>
+                              </div>
+                              <p className="mt-2 text-gray-700">{log.content}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      ))}
+                    </div>
+
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Add Communication</h3>
+                      <form onSubmit={e => { e.preventDefault(); handleAddComm(viewLead.id); }} className="space-y-3">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Type</label>
+                            <select
+                              name="type"
+                              value={commForm.type}
+                              onChange={e => setCommForm(prev => ({ ...prev, type: e.target.value }))}
+                              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                            >
+                              {commTypes.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-xs font-medium uppercase tracking-wide text-gray-500">By</label>
+                            <input
+                              type="text"
+                              name="by"
+                              value={commForm.by}
+                              onChange={e => setCommForm(prev => ({ ...prev, by: e.target.value }))}
+                              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Content</label>
+                          <textarea
+                            name="content"
+                            value={commForm.content}
+                            onChange={e => setCommForm(prev => ({ ...prev, content: e.target.value }))}
+                            rows={3}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                          />
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            type="submit"
+                            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition"
+                            disabled={commSubmitting}
+                          >
+                            {commSubmitting ? 'Adding…' : 'Add Communication'}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Reminders</h3>
+                      {Array.isArray((viewLead as any).reminders) && ((viewLead as any).reminders.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-400">
+                          No reminders set.
+                        </div>
+                      ) : (
+                        <ul className="space-y-3 max-h-48 overflow-y-auto pr-2">
+                          {(viewLead as any).reminders.map((rem: any, idx: number) => (
+                            <li key={idx} className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm">
+                              <div className="flex items-center justify-between">
+                                <span className="text-gray-700">{rem.message}</span>
+                                <span className="text-xs text-gray-400">
+                                  Due: {new Date(rem.dueDate).toLocaleDateString('en-IN')}
+                                </span>
+                              </div>
+                              {rem.completed && <span className="mt-2 inline-flex items-center text-xs font-semibold text-green-600">✓ Completed</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      ))}
+                    </div>
+
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Add Reminder</h3>
+                      <form onSubmit={e => { e.preventDefault(); handleAddReminder(viewLead.id); }} className="space-y-3">
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Message</label>
+                          <textarea
+                            name="message"
+                            value={reminderForm.message}
+                            onChange={e => setReminderForm(prev => ({ ...prev, message: e.target.value }))}
+                            rows={3}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Due Date</label>
+                          <input
+                            type="date"
+                            name="dueDate"
+                            value={reminderForm.dueDate}
+                            onChange={e => setReminderForm(prev => ({ ...prev, dueDate: e.target.value }))}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                          />
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            type="submit"
+                            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition"
+                            disabled={reminderSubmitting}
+                          >
+                            {reminderSubmitting ? 'Adding…' : 'Add Reminder'}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block mb-1 font-medium">By</label>
-                    <input type="text" name="by" value={commForm.by} onChange={e => setCommForm(prev => ({ ...prev, by: e.target.value }))} className="w-full px-3 py-2 border rounded" />
-                  </div>
-                  <div className="flex justify-end">
-                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" disabled={commSubmitting}>{commSubmitting ? 'Adding...' : 'Add Communication'}</button>
-                  </div>
-                </form>
-              </div>
-              {/* Reminders Card */}
-              <div className="bg-white rounded-lg shadow p-4">
-                <div className="text-lg font-semibold mb-2">Reminders</div>
-                {Array.isArray((viewLead as any).reminders) && ((viewLead as any).reminders.length === 0 ? (
-                  <div className="text-gray-500 text-sm">No reminders set.</div>
-                ) : (
-                  <ul className="space-y-2 max-h-32 overflow-y-auto pr-2">
-                    {(viewLead as any).reminders.map((rem: any, idx: number) => (
-                      <li key={idx} className="text-sm border-b pb-1">
-                        <span>{rem.message}</span> <span className="text-gray-400">(Due: {new Date(rem.dueDate).toLocaleDateString('en-IN')})</span> {rem.completed && <span className="text-green-600">✓</span>}
-                      </li>
-                    ))}
-                  </ul>
-                ))}
-              </div>
-              {/* Add Reminder */}
-              <div className="bg-white rounded-lg shadow p-4">
-                <form onSubmit={e => { e.preventDefault(); handleAddReminder(viewLead.id); }} className="space-y-2">
-                  <div className="text-lg font-semibold mb-2">Add Reminder</div>
-                  <div>
-                    <label className="block mb-1 font-medium">Message</label>
-                    <textarea name="message" value={reminderForm.message} onChange={e => setReminderForm(prev => ({ ...prev, message: e.target.value }))} className="w-full px-3 py-2 border rounded" rows={2} />
-                  </div>
-                  <div>
-                    <label className="block mb-1 font-medium">Due Date</label>
-                    <input type="date" name="dueDate" value={reminderForm.dueDate} onChange={e => setReminderForm(prev => ({ ...prev, dueDate: e.target.value }))} className="w-full px-3 py-2 border rounded" />
-                  </div>
-                  <div className="flex justify-end">
-                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" disabled={reminderSubmitting}>{reminderSubmitting ? 'Adding...' : 'Add Reminder'}</button>
-                  </div>
-                </form>
+                </div>
               </div>
             </div>
           </div>
-          <style dangerouslySetInnerHTML={{
-            __html: `
-            @keyframes slideInRight {
-              from { transform: translateX(100%); opacity: 0; }
-              to { transform: translateX(0); opacity: 1; }
-            }
-            .animate-slideInRight {
-              animation: slideInRight 0.3s cubic-bezier(0.4,0,0.2,1);
-            }
-          `}} />
         </div>
       )}
       {loading ? (
@@ -466,59 +565,150 @@ const LeadManagement: React.FC = () => {
       ) : error ? (
         <div className="text-red-500">{error}</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow-sm">
-            <thead>
-              <tr>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Name</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Email</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Phone</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Source</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Type</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Priority</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Status</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Assigned To</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Created At</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Property</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Recs</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((lead) => (
-                <tr key={lead.id} className="border-b text-sm">
-                  <td className="px-3 md:px-4 py-2">{lead.name}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.email}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.phone}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.source}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.type}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.priority}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.status}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.assignedTo}</td>
-                  <td className="px-3 md:px-4 py-2 whitespace-nowrap">{lead.createdAt}</td>
-                  <td className="px-3 md:px-4 py-2">
-                    {lead.propertyId ? (
-                      <Link to={`/properties/${lead.propertyId}`} className="text-blue-600 underline hover:text-blue-800" target="_blank">
-                        {lead.propertyTitle || lead.propertyId}
-                      </Link>
-                    ) : null}
-                  </td>
-                  <td className="px-3 md:px-4 py-2">
-                    {getRecommendations(lead).map(p => (
-                      <Link key={p.id} to={`/properties/${p.id}`} className="block text-sm text-primary underline hover:text-secondary" target="_blank">
-                        {p.title}
-                      </Link>
-                    ))}
-                  </td>
-                  <td className="px-3 md:px-4 py-2 whitespace-nowrap">
-                    <button className="text-blue-600 hover:underline mr-2" onClick={() => setViewLead(lead)}>View</button>
-                    <button className="text-green-600 hover:underline mr-2" onClick={() => handleEditLead(lead)}>Edit</button>
-                    <button className="text-red-600 hover:underline" onClick={() => handleDeleteLead(lead.id)} disabled={deletingId === lead.id}>{deletingId === lead.id ? 'Deleting...' : 'Delete'}</button>
-                  </td>
+        <div className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <div className="flex items-center gap-3 text-sm text-gray-600">
+              <span className="font-medium text-gray-900">Leads Overview</span>
+              <span className="hidden lg:inline-block text-xs text-gray-400">Showing {leads.length} records</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex items-center gap-2 text-xs text-gray-500 border border-gray-200 rounded-lg px-2 py-1 bg-white">
+                <span>Records</span>
+                <select className="bg-transparent text-gray-700 text-xs focus:outline-none">
+                  <option>10</option>
+                  <option>25</option>
+                  <option>50</option>
+                </select>
+              </label>
+              <div className="flex items-center border border-gray-200 rounded-lg bg-white px-2 py-1">
+                <input
+                  type="text"
+                  placeholder="Search lead…"
+                  className="text-xs text-gray-600 bg-transparent focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="w-full overflow-x-auto">
+            <table className="min-w-[1200px] table-auto border-collapse text-sm">
+              <thead>
+                <tr className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Name</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Email</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Phone</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Source</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Type</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Priority</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Status</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Assigned To</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Created At</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Property</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Recs</th>
+                  <th className="border border-gray-200 px-4 py-3 font-medium whitespace-nowrap">Actions</th>
                 </tr>
+              </thead>
+              <tbody>
+                {leads.map((lead, idx) => (
+                  <tr
+                    key={lead.id}
+                    className={`text-gray-700 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition`}
+                  >
+                    <td className="border border-gray-200 px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{lead.name}</td>
+                    <td className="border border-gray-200 px-4 py-3">
+                      <div className="max-w-[220px] truncate text-gray-700">{lead.email}</div>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 whitespace-nowrap">{lead.phone}</td>
+                    <td className="border border-gray-200 px-4 py-3 capitalize whitespace-nowrap">{lead.source}</td>
+                    <td className="border border-gray-200 px-4 py-3 capitalize whitespace-nowrap">{lead.type}</td>
+                    <td className="border border-gray-200 px-4 py-3">
+                      <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 capitalize">
+                        {lead.priority}
+                      </span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3">
+                      <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-700 capitalize">
+                        {lead.status}
+                      </span>
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3">{lead.assignedTo || '—'}</td>
+                    <td className="border border-gray-200 px-4 py-3 whitespace-nowrap">
+                      {lead.createdAt ? new Date(lead.createdAt).toLocaleString('en-IN') : '—'}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 min-w-[160px]">
+                      {lead.propertyId ? (
+                        <Link
+                          to={`/properties/${lead.propertyId}`}
+                          className="text-blue-600 hover:text-blue-800 underline"
+                          target="_blank"
+                        >
+                          {lead.propertyTitle || lead.propertyId}
+                        </Link>
+                      ) : (
+                        <span className="text-gray-400 text-xs">—</span>
+                      )}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 min-w-[160px] space-y-1">
+                      {getRecommendations(lead).length === 0 ? (
+                        <span className="text-xs text-gray-400">No matches</span>
+                      ) : (
+                        getRecommendations(lead).map(p => (
+                          <Link
+                            key={p.id}
+                            to={`/properties/${p.id}`}
+                            className="block text-xs text-primary underline hover:text-secondary truncate"
+                            target="_blank"
+                          >
+                            {p.title}
+                          </Link>
+                        ))
+                      )}
+                    </td>
+                    <td className="border border-gray-200 px-4 py-3 min-w-[130px] whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <button
+                          className="text-blue-600 text-xs font-semibold hover:underline"
+                          onClick={() => setViewLead(lead)}
+                        >
+                          View
+                        </button>
+                        <button
+                          className="text-green-600 text-xs font-semibold hover:underline"
+                          onClick={() => handleEditLead(lead)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="text-red-600 text-xs font-semibold hover:underline"
+                          onClick={() => handleDeleteLead(lead.id)}
+                          disabled={deletingId === lead.id}
+                        >
+                          {deletingId === lead.id ? 'Deleting…' : 'Delete'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-3 px-4 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500">
+            <div>
+              Showing <span className="font-semibold">{Math.min(leads.length, 10)}</span> of{' '}
+              <span className="font-semibold">{leads.length}</span> entries
+            </div>
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map(page => (
+                <button
+                  key={page}
+                  className={`px-2.5 py-1 rounded border ${page === 1 ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-200 hover:bg-gray-100'
+                    }`}
+                  type="button"
+                >
+                  {page}
+                </button>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
       )}
     </div>

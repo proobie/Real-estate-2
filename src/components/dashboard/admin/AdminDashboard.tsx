@@ -315,7 +315,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar (desktop) */}
-      <div className="hidden md:block w-64 bg-white shadow-lg">
+      <div className="hidden md:flex md:flex-col w-64 h-full bg-white shadow-lg">
         <div className="p-6 border-b">
           <div className="flex flex-col items-start">
             <div className=" p-3 ">
@@ -344,7 +344,7 @@ const AdminDashboard: React.FC = () => {
           })}
         </nav>
 
-        <div className="absolute bottom-0 w-64 p-6 border-t">
+        <div className="mt-auto p-6 border-t">
           <div className="flex items-center">
             <img
               src={user?.avatar}

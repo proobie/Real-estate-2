@@ -121,11 +121,11 @@ const ProfileSettings: React.FC = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-full">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <div className="p-6 pb-24 bg-gray-50 min-h-full overflow-y-auto">
+      <div className="max-w-xl mx-auto bg-white p-8 pb-16 rounded-lg shadow-md border border-gray-100">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Profile Settings</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           <div className="flex items-center space-x-6">
             <div className="relative">
               <img
@@ -198,7 +198,7 @@ const ProfileSettings: React.FC = () => {
                   type="email"
                   id="contactEmail"
                   value={contactEmail}
-                  onChange={(e)=>setContactEmail(e.target.value)}
+                  onChange={(e) => setContactEmail(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Public contact email"
                 />
@@ -214,7 +214,7 @@ const ProfileSettings: React.FC = () => {
                   type="tel"
                   id="contactPhone"
                   value={contactPhone}
-                  onChange={(e)=>setContactPhone(e.target.value)}
+                  onChange={(e) => setContactPhone(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Public contact phone"
                 />
@@ -225,7 +225,7 @@ const ProfileSettings: React.FC = () => {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           {success && <p className="text-green-500 text-sm">{success}</p>}
 
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-2">
             <button
               type="submit"
               disabled={loading}
