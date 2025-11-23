@@ -25,13 +25,14 @@ const PORT = process.env.PORT || 5000;
 
 const supabaseUrl = 'https://vlboszmxhmamsviufucv.supabase.co';
 
-
 // Accept common env var names and trim whitespace/quotes
-let supabaseKey = (process.env.SUPABASE_SERVICE_KEY
+const rawServiceRoleKey = (process.env.SUPABASE_SERVICE_KEY
   || process.env.SUPABASE_SERVICE_ROLE_KEY
   || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
   || process.env.SUPABASE_SECRET
   || '').toString().trim().replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+const hasServiceRoleKey = Boolean(rawServiceRoleKey);
+let supabaseKey = rawServiceRoleKey;
 if (!supabaseKey) {
   // As a last resort, avoid using anon key for server-side admin operations,
   // but allow app to start with a clear warning for read-only scenarios.
@@ -58,6 +59,10 @@ function getSupabaseDbForRequest(req: Request) {
       headers: token ? { Authorization: token } : undefined,
     },
   });
+}
+
+function getSupabaseClient(req: Request) {
+  return hasServiceRoleKey ? supabase : getSupabaseDbForRequest(req);
 }
 
 // --- OpenAI setup (optional) ---
@@ -272,7 +277,19 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Get all properties
 app.get('/api/properties', async (req: Request, res: Response) => {
-  const { data, error } = await supabase.from('properties').select('*, profiles!createdBy(*)');
+  // Try to join with profiles table to get creator information
+  const { data, error } = await supabase
+    .from('properties')
+    .select(`
+      *,
+      profiles:createdBy (
+        id,
+        name,
+        contact_email,
+        contact_phone,
+        avatar_url
+      )
+    `);
   if (error) {
     console.error('Error fetching properties from Supabase:', error);
     res.status(500).json({ error: error.message });
@@ -284,7 +301,20 @@ app.get('/api/properties', async (req: Request, res: Response) => {
 // Get property by ID
 app.get('/api/properties/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { data, error } = await supabase.from('properties').select('*, profiles!createdBy(*)').eq('id', id).single();
+  const { data, error } = await supabase
+    .from('properties')
+    .select(`
+      *,
+      profiles:createdBy (
+        id,
+        name,
+        contact_email,
+        contact_phone,
+        avatar_url
+      )
+    `)
+    .eq('id', id)
+    .single();
   if (error || !data) {
     res.status(404).json({ error: 'Property not found' });
     return;
@@ -509,6 +539,7 @@ app.post('/api/properties', upload.fields([
   { name: 'floorPlan', maxCount: 1 }
 ]), async (req: Request, res: Response) => {
   try {
+    const db = getSupabaseClient(req);
     const data = req.body;
     const files = req.files as Record<string, Express.Multer.File[]>;
 
@@ -569,7 +600,7 @@ app.post('/api/properties', upload.fields([
       createdBy: data.createdBy,
     };
 
-    const { data: inserted, error } = await supabase.from('properties').insert(newProperty).select().single();
+    const { data: inserted, error } = await db.from('properties').insert(newProperty).select().single();
 
     if (error) {
       console.error('Supabase insert error:', error);
@@ -591,7 +622,8 @@ app.put('/api/properties/:id', upload.fields([
   { name: 'floorPlan', maxCount: 1 }
 ]), async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { data: existing, error: fetchError } = await supabase.from('properties').select('*').eq('id', id).single();
+  const db = getSupabaseClient(req);
+  const { data: existing, error: fetchError } = await db.from('properties').select('*').eq('id', id).single();
   if (fetchError || !existing) {
     res.status(404).json({ error: 'Property not found' });
     return;
@@ -649,7 +681,7 @@ app.put('/api/properties/:id', upload.fields([
     updateData.brochure = brochure;
     updateData.floorPlan = floorPlan;
 
-    const { data: updated, error } = await supabase.from('properties').update(updateData).eq('id', id).select().single();
+    const { data: updated, error } = await db.from('properties').update(updateData).eq('id', id).select().single();
     if (error) {
       console.error('Supabase update error:', error);
       res.status(500).json({ error: error.message });
@@ -736,7 +768,8 @@ app.post('/api/properties/bulk-upload', upload.single('csv'), (req, res) => {
 // Delete property by ID
 app.delete('/api/properties/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { error } = await supabase.from('properties').delete().eq('id', id);
+  const db = getSupabaseClient(req);
+  const { error } = await db.from('properties').delete().eq('id', id);
   if (error) {
     res.status(500).json({ error: error.message });
     return;
@@ -938,6 +971,18 @@ app.post('/api/users', async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Failed to create user' });
+  }
+});
+
+// Delete user (basic)
+app.delete('/api/users/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { error } = await supabase.auth.admin.deleteUser(id);
+    if (error) { res.status(500).json({ error: error.message }); return; }
+    res.status(204).send();
+  } catch (e: any) {
+    res.status(500).json({ error: e.message || 'Failed to delete user' });
   }
 });
 

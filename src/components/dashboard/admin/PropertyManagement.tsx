@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Plus,
   Search,
-  Filter,
   Edit,
   Trash2,
   Eye,
@@ -13,14 +12,21 @@ import {
   DollarSign,
   Users,
   Download,
-  Upload
+  Upload,
+  CheckCircle,
+  Mail,
+  Phone,
+  User,
+  RotateCw
 } from 'lucide-react';
 import { Property } from '../../../types';
 import { useProperties } from '../../../contexts/PropertyContext';
 import PropertyForm from './PropertyForm';
+import { API_BASE_URL, authFetch } from '../../../api';
+import { supabase } from '../../../supabaseClient';
 
 const PropertyManagement: React.FC = () => {
-  const { properties, addProperty, updateProperty, deleteProperty, bulkUpload, setProperties } = useProperties();
+  const { properties, loading, error, addProperty, updateProperty, deleteProperty, bulkUpload, setProperties, refresh } = useProperties();
   const [currentView, setCurrentView] = useState<'list' | 'create' | 'edit'>('list');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,6 +35,8 @@ const PropertyManagement: React.FC = () => {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkSuccess, setBulkSuccess] = useState<string | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [clientDetails, setClientDetails] = useState<Record<string, { name: string; email: string; phone: string }>>({});
 
   const handleCreateProperty = () => {
     setSelectedProperty(null);
@@ -124,14 +132,33 @@ const PropertyManagement: React.FC = () => {
     input.click();
   };
 
-  const filteredProperties = properties.filter(property => {
-    const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      property.location.city.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || property.status === filterStatus;
-    const matchesType = filterType === 'all' || property.type === filterType;
+  const filteredProperties = properties
+    .filter(property => {
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch = !searchQuery ||
+        (property.title && property.title.toLowerCase().includes(searchLower)) ||
+        (property.location?.city && property.location.city.toLowerCase().includes(searchLower)) ||
+        (property.location?.address && property.location.address.toLowerCase().includes(searchLower));
+      const matchesStatus = filterStatus === 'all' || property.status === filterStatus;
+      const matchesType = filterType === 'all' || property.type === filterType;
 
-    return matchesSearch && matchesStatus && matchesType;
-  });
+      return matchesSearch && matchesStatus && matchesType;
+    })
+    .sort((a, b) => {
+      // Prioritize pending-approval properties at the top
+      const aIsPending = a.status === 'pending-approval';
+      const bIsPending = b.status === 'pending-approval';
+
+      if (aIsPending && !bIsPending) return -1;
+      if (!aIsPending && bIsPending) return 1;
+
+      // If both are pending or both are not pending, sort by creation date (newest first)
+      const aDate = new Date(a.createdAt || 0).getTime();
+      const bDate = new Date(b.createdAt || 0).getTime();
+
+      // For pending-approval, newest first; for others, also newest first
+      return bDate - aDate;
+    });
 
   const formatPrice = (price: number) => {
     if (price >= 10000000) {
@@ -149,9 +176,112 @@ const PropertyManagement: React.FC = () => {
       case 'sold': return 'bg-red-100 text-red-800';
       case 'rented': return 'bg-blue-100 text-blue-800';
       case 'under-offer': return 'bg-yellow-100 text-yellow-800';
+      case 'pending-approval': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const formatStatusLabel = (status: string) => {
+    return status
+      .split('-')
+      .map(segment => segment.charAt(0).toUpperCase() + segment.slice(1))
+      .join(' ');
+  };
+
+  const handleApproveProperty = async (propertyId: string) => {
+    if (!window.confirm('Are you sure you want to approve this property? It will become available on the frontend.')) {
+      return;
+    }
+    setApprovingId(propertyId);
+    try {
+      const formData = new FormData();
+      formData.set('status', 'available');
+      await updateProperty(propertyId, formData);
+      // Refresh properties list to get updated data
+      await refresh();
+    } catch (err: any) {
+      alert(err.message || 'Failed to approve property');
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
+  // Fetch client details for properties with createdBy (if not already loaded from backend join)
+  useEffect(() => {
+    const fetchClientDetails = async () => {
+      // Fetch for all properties that have createdBy - ensure we have complete info
+      const propertiesWithCreator = properties.filter(p => p.createdBy);
+      if (propertiesWithCreator.length === 0) return;
+
+      const userIds = [...new Set(propertiesWithCreator.map(p => p.createdBy!))];
+      const details: Record<string, { name: string; email: string; phone: string }> = {};
+
+      // Fetch from profiles table AND users API to get complete client information
+      for (const userId of userIds) {
+        try {
+          let clientName = '';
+          let clientEmail = '';
+          let clientPhone = '';
+
+          // Step 1: Try to get from profiles table (where Profile Information is saved)
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('name, email, contact_email, contact_phone')
+            .eq('id', userId)
+            .single();
+
+          if (!profileError && profile) {
+            clientName = profile.name || '';
+            clientEmail = profile.email || profile.contact_email || '';
+            clientPhone = profile.contact_phone || '';
+          }
+
+          // Step 2: If email is missing, get from users API (auth.users has the email)
+          if (!clientEmail) {
+            try {
+              const res = await authFetch(`${API_BASE_URL}/api/users`);
+              if (res.ok) {
+                const users = await res.json();
+                const userData = Array.isArray(users) ? users.find((u: any) => u.id === userId) : null;
+                if (userData) {
+                  // Use email from auth.users (this is the client's login email)
+                  clientEmail = userData.email || '';
+                  // Also get name if not already found
+                  if (!clientName) {
+                    clientName = userData.name || userData.user_metadata?.name || '';
+                  }
+                  // Also get phone if not already found
+                  if (!clientPhone) {
+                    clientPhone = userData.user_metadata?.phone || userData.user_metadata?.contact_phone || '';
+                  }
+                }
+              }
+            } catch (apiErr) {
+              console.error('Error fetching user from API:', apiErr);
+            }
+          }
+
+          // Save the complete client information
+          details[userId] = {
+            name: clientName || 'Unknown User',
+            email: clientEmail || 'No email',
+            phone: clientPhone || 'No phone',
+          };
+        } catch (err) {
+          console.error('Error fetching client details:', err);
+          details[userId] = {
+            name: `User ${userId.substring(0, 8)}`,
+            email: 'No email available',
+            phone: 'No phone available',
+          };
+        }
+      }
+
+      setClientDetails(prev => ({ ...prev, ...details }));
+    };
+
+    fetchClientDetails();
+  }, [properties]);
 
   if (currentView === 'create' || currentView === 'edit') {
     return (
@@ -170,7 +300,7 @@ const PropertyManagement: React.FC = () => {
   }
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6 pb-8">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
         <div>
@@ -179,6 +309,19 @@ const PropertyManagement: React.FC = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 mt-4 lg:mt-0">
+          <button
+            onClick={() => {
+              refresh();
+              setSearchQuery('');
+              setFilterStatus('all');
+              setFilterType('all');
+            }}
+            className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            title="Refresh properties list"
+          >
+            <RotateCw className="h-4 w-4 mr-2" />
+            Refresh
+          </button>
           <button
             onClick={handleExportCSV}
             className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -204,7 +347,7 @@ const PropertyManagement: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mb-4 md:mb-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <div className="flex items-center">
             <div className="bg-blue-100 p-3 rounded-lg">
@@ -258,6 +401,20 @@ const PropertyManagement: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="flex items-center">
+            <div className="bg-yellow-100 p-3 rounded-lg">
+              <Calendar className="h-6 w-6 text-yellow-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm text-gray-600">Pending Approval</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {properties.filter(p => p.status === 'pending-approval').length}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filters and Search */}
@@ -287,6 +444,7 @@ const PropertyManagement: React.FC = () => {
               <option value="sold">Sold</option>
               <option value="rented">Rented</option>
               <option value="under-offer">Under Offer</option>
+              <option value="pending-approval">Pending Approval</option>
             </select>
 
             <select
@@ -306,15 +464,51 @@ const PropertyManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 font-semibold">Error Loading Properties</p>
+          <p className="text-red-600 text-sm mt-1">{error}</p>
+          <div className="mt-3 space-y-2">
+            <button
+              onClick={() => {
+                refresh();
+                setSearchQuery('');
+                setFilterStatus('all');
+                setFilterType('all');
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Retry
+            </button>
+            <p className="text-xs text-red-500 mt-2">
+              <strong>Tip:</strong> If the error persists, make sure your backend server is running on port 5000.
+              <br />
+              Check the browser console (F12) for more details.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-800">Loading properties...</p>
+        </div>
+      )}
+
       {/* Properties List */}
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="p-4 md:p-6 border-b">
           <h3 className="text-lg font-semibold text-gray-900">
-            Properties ({filteredProperties.length})
+            Properties ({filteredProperties.length} of {properties.length} total)
           </h3>
+          {!loading && !error && properties.length === 0 && (
+            <p className="text-sm text-gray-500 mt-1">No properties found in database</p>
+          )}
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-visible">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
@@ -334,6 +528,9 @@ const PropertyManagement: React.FC = () => {
                   Agent
                 </th>
                 <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Owner
+                </th>
+                <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -343,11 +540,20 @@ const PropertyManagement: React.FC = () => {
                 <tr key={property.id} className="hover:bg-gray-50 text-sm md:text-base">
                   <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <img
-                        src={property.images[0]}
-                        alt={property.title}
-                        className="h-10 w-10 md:h-12 md:w-12 rounded-lg object-cover"
-                      />
+                      {property.images && property.images.length > 0 && property.images[0] ? (
+                        <img
+                          src={property.images[0]}
+                          alt={property.title}
+                          className="h-10 w-10 md:h-12 md:w-12 rounded-lg object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="50" dy=".3em" x="50%" y="50%" text-anchor="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                      ) : (
+                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                          <Home className="h-5 w-5 text-gray-400" />
+                        </div>
+                      )}
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900 flex items-center">
                           {property.title}
@@ -364,7 +570,7 @@ const PropertyManagement: React.FC = () => {
                   <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-900">
                       <MapPin className="h-4 w-4 text-gray-400 mr-1" />
-                      {property.location.city}
+                      {property.location?.city || property.location?.address || 'N/A'}
                     </div>
                   </td>
                   <td className="px-4 md:px-6 py-4 whitespace-nowrap">
@@ -374,19 +580,80 @@ const PropertyManagement: React.FC = () => {
                   </td>
                   <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(property.status)}`}>
-                      {property.status.replace('-', ' ')}
+                      {formatStatusLabel(property.status)}
                     </span>
                   </td>
                   <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <img
-                        src={property.agent?.photo}
-                        alt={property.agent?.name}
-                        className="h-7 w-7 md:h-8 md:w-8 rounded-full"
-                      />
+                      {property.agent?.photo ? (
+                        <img
+                          src={property.agent.photo}
+                          alt={property.agent.name}
+                          className="h-7 w-7 md:h-8 md:w-8 rounded-full"
+                        />
+                      ) : (
+                        <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                          <Users className="h-4 w-4 text-gray-400" />
+                        </div>
+                      )}
                       <div className="ml-2">
-                        <div className="text-sm text-gray-900">{property.agent?.name}</div>
+                        <div className="text-sm text-gray-900">{property.agent?.name || 'N/A'}</div>
                       </div>
+                    </div>
+                  </td>
+                  <td className="px-4 md:px-6 py-4">
+                    <div className="text-sm">
+                      {property.createdBy ? (
+                        (() => {
+                          // Get client info - prioritize creator from backend, merge with clientDetails for missing fields
+                          const backendCreator = property.creator;
+                          const fetchedDetails = clientDetails[property.createdBy];
+
+                          // Merge data: use backend creator first, then fill missing fields from fetched details
+                          const clientInfo = backendCreator
+                            ? {
+                              name: backendCreator.name || fetchedDetails?.name || 'Unknown User',
+                              email: backendCreator.email || fetchedDetails?.email || 'No email',
+                              phone: backendCreator.phone || fetchedDetails?.phone || 'No phone',
+                            }
+                            : fetchedDetails;
+
+                          if (clientInfo) {
+                            return (
+                              <div className="space-y-1">
+                                <div className="flex items-center text-gray-900 font-medium">
+                                  <User className="h-3 w-3 mr-1 text-gray-500" />
+                                  {clientInfo.name || 'Unknown User'}
+                                </div>
+                                <div className="flex items-center text-xs text-gray-600">
+                                  <Mail className="h-3 w-3 mr-1" />
+                                  {clientInfo.email &&
+                                    clientInfo.email !== 'No email' &&
+                                    clientInfo.email !== 'No email available'
+                                    ? clientInfo.email
+                                    : 'No email'}
+                                </div>
+                                {clientInfo.phone &&
+                                  clientInfo.phone !== 'No phone' &&
+                                  clientInfo.phone !== 'No phone available' && (
+                                    <div className="flex items-center text-xs text-gray-600">
+                                      <Phone className="h-3 w-3 mr-1" />
+                                      {clientInfo.phone}
+                                    </div>
+                                  )}
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="text-xs text-gray-500">
+                              <div>Loading client info...</div>
+                              <div className="text-gray-400">ID: {property.createdBy.substring(0, 8)}...</div>
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <span className="text-xs text-gray-400">Admin</span>
+                      )}
                     </div>
                   </td>
                   <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -394,18 +661,31 @@ const PropertyManagement: React.FC = () => {
                       <button
                         onClick={() => {/* TODO: View property */ }}
                         className="text-blue-600 hover:text-blue-900"
+                        title="View property"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleEditProperty(property)}
                         className="text-green-600 hover:text-green-900"
+                        title="Edit property"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
+                      {property.status === 'pending-approval' && (
+                        <button
+                          onClick={() => handleApproveProperty(property.id)}
+                          disabled={approvingId === property.id}
+                          className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                          title="Approve property"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </button>
+                      )}
                       <button
                         onClick={() => handleDeleteProperty(property.id)}
                         className="text-red-600 hover:text-red-900"
+                        title="Delete property"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -425,6 +705,11 @@ const PropertyManagement: React.FC = () => {
               </p>
             </div>
           )}
+        </div>
+        <div className="p-4 md:p-6 border-t bg-gray-50">
+          <p className="text-xs text-gray-500 text-center">
+            Showing {filteredProperties.length} of {properties.length} properties
+          </p>
         </div>
       </div>
 

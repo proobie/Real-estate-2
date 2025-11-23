@@ -835,6 +835,21 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
+// Delete user (Supabase Admin)
+app.delete('/api/users/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { error } = await exports.supabase.auth.admin.deleteUser(id);
+        if (error) {
+            res.status(500).json({ error: error.message });
+            return;
+        }
+        res.status(204).send();
+    } catch (e) {
+        res.status(500).json({ error: (e === null || e === void 0 ? void 0 : e.message) || 'Failed to delete user' });
+    }
+});
+
 // Roles API
 app.get('/api/roles', async (_req, res) => {
     const { data, error } = await exports.supabase.from('roles').select('*').order('name');

@@ -451,7 +451,7 @@ const AdminDashboard: React.FC = () => {
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto h-full">
+        <main className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           {renderContent()}
         </main>
       </div>

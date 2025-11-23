@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { API_BASE_URL, authFetch } from '../../../api';
 import { useProperties } from '../../../contexts/PropertyContext';
 import { Link } from 'react-router-dom';
+import { supabase } from '../../../supabaseClient';
 
 interface Lead {
   id: string;
@@ -71,6 +72,21 @@ const LeadManagement: React.FC = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [viewLead, setViewLead] = useState<Lead | null>(null);
+  const initialLeadForm = {
+    name: '',
+    email: '',
+    phone: '',
+    source: 'website',
+    type: 'buyer',
+    priority: 'medium',
+    assignedTo: '',
+    notes: '',
+    status: 'New',
+  };
+  const [viewEditForm, setViewEditForm] = useState({ ...initialLeadForm });
+  const [isEditingView, setIsEditingView] = useState(false);
+  const [viewEditSubmitting, setViewEditSubmitting] = useState(false);
+  const [viewEditError, setViewEditError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editLead, setEditLead] = useState<Lead | null>(null);
   const [commForm, setCommForm] = useState({ type: 'call', content: '', by: '' });
@@ -79,6 +95,15 @@ const LeadManagement: React.FC = () => {
   const [reminderSubmitting, setReminderSubmitting] = useState(false);
   const [assignedToEdit, setAssignedToEdit] = useState<{ [id: string]: string }>({});
   const { properties } = useProperties();
+  const [siteVisitForm, setSiteVisitForm] = useState<{ scheduledAt: string; note: string }>({
+    scheduledAt: '',
+    note: '',
+  });
+  const [siteVisitSubmitting, setSiteVisitSubmitting] = useState(false);
+  type SiteVisitRow = { id: string; lead_id: string; property_id?: string | null; scheduled_at: string; note?: string | null; status?: string | null; created_at?: string | null };
+  const [siteVisits, setSiteVisits] = useState<SiteVisitRow[]>([]);
+  const [editingVisitId, setEditingVisitId] = useState<string | null>(null);
+  const [editVisitForm, setEditVisitForm] = useState<{ scheduledAt: string; note: string }>({ scheduledAt: '', note: '' });
 
   useEffect(() => {
     authFetch(`${API_BASE_URL}/api/leads`)
@@ -91,6 +116,64 @@ const LeadManagement: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const mapLeadToForm = (lead: Lead) => ({
+    name: lead.name || '',
+    email: lead.email || '',
+    phone: lead.phone || '',
+    source: lead.source || 'website',
+    type: lead.type || 'buyer',
+    priority: lead.priority || 'medium',
+    assignedTo: lead.assignedTo || '',
+    notes: lead.notes || '',
+    status: lead.status || 'New',
+  });
+
+  const resetViewState = () => {
+    setViewLead(null);
+    setIsEditingView(false);
+    setViewEditForm({ ...initialLeadForm });
+    setViewEditError(null);
+  };
+
+  const openViewLead = (lead: Lead) => {
+    setViewLead(lead);
+    setViewEditForm(mapLeadToForm(lead));
+    setIsEditingView(false);
+    setViewEditError(null);
+  };
+
+  const handleViewEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setViewEditForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveViewLead = async () => {
+    if (!viewLead) return;
+    setViewEditError(null);
+    if (!viewEditForm.name.trim() || !viewEditForm.email.trim() || !viewEditForm.phone.trim()) {
+      setViewEditError('Name, Email, and Phone are required.');
+      return;
+    }
+    setViewEditSubmitting(true);
+    try {
+      const res = await authFetch(`${API_BASE_URL}/api/leads/${viewLead.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(viewEditForm),
+      });
+      if (!res.ok) throw new Error('Failed to update lead');
+      const updated = await res.json();
+      setLeads(prev => prev.map(l => (l.id === updated.id ? updated : l)));
+      setViewLead(updated);
+      setViewEditForm(mapLeadToForm(updated));
+      setIsEditingView(false);
+    } catch {
+      setViewEditError('Failed to update lead');
+    } finally {
+      setViewEditSubmitting(false);
+    }
   };
 
   const handleAddLead = async (e: React.FormEvent) => {
@@ -135,22 +218,6 @@ const LeadManagement: React.FC = () => {
     }
   };
 
-  const handleEditLead = (lead: Lead) => {
-    setEditLead(lead);
-    setForm({
-      name: lead.name,
-      email: lead.email,
-      phone: lead.phone,
-      source: lead.source,
-      type: lead.type,
-      priority: lead.priority,
-      assignedTo: lead.assignedTo || '',
-      notes: lead.notes || '',
-      status: lead.status,
-    });
-    setShowModal(true);
-  };
-
   const handleSaveEditLead = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
@@ -173,6 +240,7 @@ const LeadManagement: React.FC = () => {
       setForm({
         name: '', email: '', phone: '', source: 'website', type: 'buyer', priority: 'medium', assignedTo: '', notes: '', status: 'New',
       });
+      setViewEditForm(mapLeadToForm(updated));
     } catch {
       setFormError('Failed to update lead');
     } finally {
@@ -205,6 +273,7 @@ const LeadManagement: React.FC = () => {
         const updated = await res.json();
         setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
         setViewLead(updated);
+        setViewEditForm(mapLeadToForm(updated));
         setCommForm({ type: 'call', content: '', by: '' });
       }
     } finally {
@@ -225,6 +294,7 @@ const LeadManagement: React.FC = () => {
         const updated = await res.json();
         setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
         setViewLead(updated);
+        setViewEditForm(mapLeadToForm(updated));
         setReminderForm({ message: '', dueDate: '' });
       }
     } finally {
@@ -246,6 +316,42 @@ const LeadManagement: React.FC = () => {
       const updated = await res.json();
       setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
       setViewLead(updated);
+      setViewEditForm(mapLeadToForm(updated));
+    }
+  };
+
+  const handleScheduleSiteVisit = async (leadId: string) => {
+    if (!siteVisitForm.scheduledAt) return;
+    if (!viewLead) return;
+    setSiteVisitSubmitting(true);
+    try {
+      // Insert into Supabase table 'site_visite_schedule' without touching backend API
+      const { error } = await supabase.from('site_visite_schedule').insert({
+        lead_id: leadId,
+        property_id: viewLead.propertyId || null,
+        scheduled_at: siteVisitForm.scheduledAt,
+        note: siteVisitForm.note || null,
+        status: 'scheduled',
+      });
+      if (error) throw error;
+
+      // Refresh site visits list
+      try {
+        const { data } = await supabase
+          .from('site_visite_schedule')
+          .select('id, lead_id, property_id, scheduled_at, note, status, created_at')
+          .eq('lead_id', leadId)
+          .order('scheduled_at', { ascending: true });
+        setSiteVisits(Array.isArray(data) ? (data as SiteVisitRow[]) : []);
+      } catch {}
+
+      // Reset form on success
+      setSiteVisitForm({ scheduledAt: '', note: '' });
+      alert('Site visit scheduled successfully.');
+    } catch (e: any) {
+      alert(e?.message || 'Failed to schedule site visit');
+    } finally {
+      setSiteVisitSubmitting(false);
     }
   };
 
@@ -272,6 +378,65 @@ const LeadManagement: React.FC = () => {
       return matchBHK && matchPrice && matchCity;
     }).slice(0, 2); // show up to 2 recommendations
   }
+
+  // Load scheduled site visits when viewing a lead
+  useEffect(() => {
+    (async () => {
+      if (!viewLead?.id) { setSiteVisits([]); return; }
+      try {
+        const { data } = await supabase
+          .from('site_visite_schedule')
+          .select('id, lead_id, property_id, scheduled_at, note, status, created_at')
+          .eq('lead_id', viewLead.id)
+          .order('scheduled_at', { ascending: true });
+        setSiteVisits(Array.isArray(data) ? (data as SiteVisitRow[]) : []);
+      } catch {
+        setSiteVisits([]);
+      }
+    })();
+  }, [viewLead?.id]);
+
+  const beginEditVisit = (visit: SiteVisitRow) => {
+    setEditingVisitId(visit.id);
+    setEditVisitForm({
+      scheduledAt: (visit.scheduled_at || '').slice(0, 10),
+      note: visit.note || '',
+    });
+  };
+
+  const cancelEditVisit = () => {
+    setEditingVisitId(null);
+    setEditVisitForm({ scheduledAt: '', note: '' });
+  };
+
+  const saveEditVisit = async (visitId: string) => {
+    if (!editVisitForm.scheduledAt) return;
+    try {
+      const { error } = await supabase
+        .from('site_visite_schedule')
+        .update({
+          scheduled_at: editVisitForm.scheduledAt,
+          note: editVisitForm.note || null,
+        })
+        .eq('id', visitId);
+      if (error) throw error;
+
+      // Refresh list
+      if (viewLead?.id) {
+        const { data } = await supabase
+          .from('site_visite_schedule')
+          .select('id, lead_id, property_id, scheduled_at, note, status, created_at')
+          .eq('lead_id', viewLead.id)
+          .order('scheduled_at', { ascending: true });
+        setSiteVisits(Array.isArray(data) ? (data as SiteVisitRow[]) : []);
+      }
+
+      cancelEditVisit();
+      alert('Site visit updated.');
+    } catch (e: any) {
+      alert(e?.message || 'Failed to update site visit');
+    }
+  };
 
   return (
     <div className="p-4 md:p-6">
@@ -346,7 +511,7 @@ const LeadManagement: React.FC = () => {
         <div className="fixed inset-0 z-50">
           <div
             className="absolute inset-0 bg-black/50"
-            onClick={() => setViewLead(null)}
+            onClick={resetViewState}
           />
           <div className="relative z-10 flex min-h-full items-start justify-center overflow-y-auto p-4 md:p-6 lg:p-8">
             <div
@@ -362,10 +527,46 @@ const LeadManagement: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 capitalize">
-                    {viewLead.status}
+                    {isEditingView ? viewEditForm.status : viewLead.status}
                   </span>
+                  {isEditingView ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          if (viewLead) {
+                            setViewEditForm(mapLeadToForm(viewLead));
+                          }
+                          setIsEditingView(false);
+                          setViewEditError(null);
+                        }}
+                        className="inline-flex items-center rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-gray-600 hover:bg-white hover:text-gray-900 transition"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveViewLead}
+                        className="inline-flex items-center rounded-full bg-green-600 px-3 py-1 text-sm font-semibold text-white hover:bg-green-700 transition disabled:opacity-70"
+                        disabled={viewEditSubmitting}
+                      >
+                        {viewEditSubmitting ? 'Saving…' : 'Save'}
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (viewLead) {
+                          setViewEditForm(mapLeadToForm(viewLead));
+                        }
+                        setIsEditingView(true);
+                        setViewEditError(null);
+                      }}
+                      className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition"
+                    >
+                      Edit
+                    </button>
+                  )}
                   <button
-                    onClick={() => setViewLead(null)}
+                    onClick={resetViewState}
                     className="inline-flex items-center rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-gray-600 hover:bg-white hover:text-gray-900 transition"
                   >
                     Close
@@ -379,37 +580,126 @@ const LeadManagement: React.FC = () => {
                   <div className="space-y-6 pb-6 lg:pb-0">
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
                       <h3 className="mb-4 text-lg font-semibold text-gray-900">Client Information</h3>
+                      {viewEditError && (
+                        <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+                          {viewEditError}
+                        </div>
+                      )}
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
                           <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Client Name</label>
-                          <input value={viewLead.name || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                          <input
+                            type="text"
+                            name="name"
+                            value={viewEditForm.name}
+                            onChange={handleViewEditChange}
+                            disabled={!isEditingView}
+                            placeholder={!isEditingView && !viewEditForm.name ? '—' : 'Name'}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+                          />
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Email</label>
-                          <input value={viewLead.email || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                          <input
+                            type="email"
+                            name="email"
+                            value={viewEditForm.email}
+                            onChange={handleViewEditChange}
+                            disabled={!isEditingView}
+                            placeholder={!isEditingView && !viewEditForm.email ? '—' : 'Email'}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+                          />
                         </div>
                         <div className="space-y-2 sm:col-span-2">
                           <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Phone</label>
                           <div className="flex gap-3">
                             <input value="+91" readOnly className="w-20 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
-                            <input value={viewLead.phone || '—'} readOnly className="flex-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                            <input
+                              type="tel"
+                              name="phone"
+                              value={viewEditForm.phone}
+                              onChange={handleViewEditChange}
+                              disabled={!isEditingView}
+                              placeholder={!isEditingView && !viewEditForm.phone ? '—' : 'Phone'}
+                              className="flex-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+                            />
                           </div>
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Source</label>
-                          <input value={viewLead.source || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700" />
+                          <select
+                            name="source"
+                            value={viewEditForm.source}
+                            onChange={handleViewEditChange}
+                            disabled={!isEditingView}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+                          >
+                            {sourceOptions.map(opt => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Type</label>
-                          <input value={viewLead.type || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700" />
+                          <select
+                            name="type"
+                            value={viewEditForm.type}
+                            onChange={handleViewEditChange}
+                            disabled={!isEditingView}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+                          >
+                            {typeOptions.map(opt => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Priority</label>
-                          <input value={viewLead.priority || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700" />
+                          <select
+                            name="priority"
+                            value={viewEditForm.priority}
+                            onChange={handleViewEditChange}
+                            disabled={!isEditingView}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+                          >
+                            {priorityOptions.map(opt => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div className="space-y-2">
                           <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Assigned To</label>
-                          <input value={viewLead.assignedTo || '—'} readOnly className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700" />
+                          <input
+                            type="text"
+                            name="assignedTo"
+                            value={viewEditForm.assignedTo}
+                            onChange={handleViewEditChange}
+                            disabled={!isEditingView}
+                            placeholder={!isEditingView && !viewEditForm.assignedTo ? '—' : 'Assigned to'}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Status</label>
+                          <select
+                            name="status"
+                            value={viewEditForm.status}
+                            onChange={handleViewEditChange}
+                            disabled={!isEditingView}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm capitalize text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
+                          >
+                            {statusOptions.map(opt => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                     </div>
@@ -417,16 +707,90 @@ const LeadManagement: React.FC = () => {
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
                       <h3 className="mb-4 text-lg font-semibold text-gray-900">Notes & Requirement</h3>
                       <textarea
-                        value={viewLead.notes || 'No notes added for this lead.'}
-                        readOnly
+                        name="notes"
+                        value={viewEditForm.notes}
+                        onChange={handleViewEditChange}
+                        disabled={!isEditingView}
                         rows={6}
-                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                        placeholder={!isEditingView && !viewEditForm.notes ? 'No notes added for this lead.' : 'Notes'}
+                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 disabled:bg-gray-100 disabled:text-gray-500"
                       />
                     </div>
                   </div>
 
                   {/* Right column */}
                   <div className="space-y-6">
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Scheduled Site Visits</h3>
+                      {siteVisits.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-400">
+                          No site visits scheduled.
+                        </div>
+                      ) : (
+                        <ul className="space-y-3 max-h-56 overflow-y-auto pr-2">
+                          {siteVisits.map(v => (
+                            <li key={v.id} className="rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm">
+                              {editingVisitId === v.id ? (
+                                <div className="space-y-2">
+                                  <div className="grid gap-3 sm:grid-cols-2">
+                                    <div className="space-y-1">
+                                      <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Date</label>
+                                      <input
+                                        type="date"
+                                        value={editVisitForm.scheduledAt}
+                                        onChange={e => setEditVisitForm(prev => ({ ...prev, scheduledAt: e.target.value }))}
+                                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                                      />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Note</label>
+                                      <input
+                                        type="text"
+                                        value={editVisitForm.note}
+                                        onChange={e => setEditVisitForm(prev => ({ ...prev, note: e.target.value }))}
+                                        className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      onClick={cancelEditVisit}
+                                      className="inline-flex items-center rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-gray-600 hover:bg-white hover:text-gray-900 transition"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      onClick={() => saveEditVisit(v.id)}
+                                      className="inline-flex items-center rounded-full bg-green-600 px-3 py-1 text-sm font-semibold text-white hover:bg-green-700 transition"
+                                    >
+                                      Save
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <div className="font-medium text-gray-900">
+                                      {new Date(v.scheduled_at).toLocaleDateString('en-IN')}
+                                    </div>
+                                    <div className="text-gray-700">{v.note || '—'}</div>
+                                  </div>
+                                  {isEditingView && (
+                                    <button
+                                      onClick={() => beginEditVisit(v)}
+                                      className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition"
+                                    >
+                                      Edit
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
                       <h3 className="mb-4 text-lg font-semibold text-gray-900">Communication Log</h3>
                       {Array.isArray((viewLead as any).communicationLog) && ((viewLead as any).communicationLog.length === 0 ? (
@@ -495,6 +859,43 @@ const LeadManagement: React.FC = () => {
                         </div>
                       </form>
                     </div>
+
+                    {isEditingView && (
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+                      <h3 className="mb-4 text-lg font-semibold text-gray-900">Schedule Site Visit</h3>
+                      <form onSubmit={e => { e.preventDefault(); handleScheduleSiteVisit(viewLead.id); }} className="space-y-3">
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Date</label>
+                          <input
+                            type="date"
+                            name="scheduledAt"
+                            value={siteVisitForm.scheduledAt}
+                            onChange={e => setSiteVisitForm(prev => ({ ...prev, scheduledAt: e.target.value }))}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium uppercase tracking-wide text-gray-500">Note (optional)</label>
+                          <textarea
+                            name="note"
+                            value={siteVisitForm.note}
+                            onChange={e => setSiteVisitForm(prev => ({ ...prev, note: e.target.value }))}
+                            rows={3}
+                            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700"
+                          />
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            type="submit"
+                            className="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 transition"
+                            disabled={siteVisitSubmitting}
+                          >
+                            {siteVisitSubmitting ? 'Scheduling…' : 'Schedule Visit'}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                    )}
 
                     <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
                       <h3 className="mb-4 text-lg font-semibold text-gray-900">Reminders</h3>
@@ -667,15 +1068,9 @@ const LeadManagement: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <button
                           className="text-blue-600 text-xs font-semibold hover:underline"
-                          onClick={() => setViewLead(lead)}
+                          onClick={() => openViewLead(lead)}
                         >
                           View
-                        </button>
-                        <button
-                          className="text-green-600 text-xs font-semibold hover:underline"
-                          onClick={() => handleEditLead(lead)}
-                        >
-                          Edit
                         </button>
                         <button
                           className="text-red-600 text-xs font-semibold hover:underline"

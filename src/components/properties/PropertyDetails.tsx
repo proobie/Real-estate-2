@@ -955,7 +955,7 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
               Preferred Time for Site Visit
             </label>
             <input
-              type="datetime-local"
+              type="date"
               name="preferredTime"
               value={form.preferredTime}
               onChange={handleContactFormChange}

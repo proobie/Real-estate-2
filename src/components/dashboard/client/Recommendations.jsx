@@ -205,14 +205,16 @@ export default function Recommendations() {
       if (!propertiesRes.ok) throw new Error('Failed to load properties');
       const rawProperties = await propertiesRes.json();
 
-      const cleanedProperties = rawProperties.map((p) => ({
-        ...p,
-        images: parseArray(p.images),
-        features: parseArray(p.features),
-        highlights: parseArray(p.highlights),
-        location: parseObj(p.location),
-        agent: parseObj(p.agent),
-      }));
+      const cleanedProperties = rawProperties
+        .map((p) => ({
+          ...p,
+          images: parseArray(p.images),
+          features: parseArray(p.features),
+          highlights: parseArray(p.highlights),
+          location: parseObj(p.location),
+          agent: parseObj(p.agent),
+        }))
+        .filter(prop => String(prop.status || '').toLowerCase() !== 'pending-approval');
 
       setAllProperties(cleanedProperties);
     } catch (e) {

@@ -45,6 +45,7 @@ const SearchResults: React.FC = () => {
 
   const filtered = useMemo(() => {
     return searched.filter(p => {
+      if (String(p.status || '').toLowerCase() === 'pending-approval') return false;
       const effectiveListingType = listingType || queryListingType || '';
       if (effectiveListingType && p.listingType !== effectiveListingType) return false;
       const locationMatch = queryLocation
