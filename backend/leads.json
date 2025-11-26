@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1751719589592",
+    "name": "tes",
+    "email": "bookishalok@gmail.com",
+    "phone": "07720077473",
+    "source": "website",
+    "type": "buyer",
+    "priority": "medium",
+    "status": "New",
+    "createdAt": "2025-07-05T12:46:29.592Z",
+    "updatedAt": "2025-07-05T12:46:34.289Z",
+    "notes": "",
+    "communicationLog": [],
+    "reminders": [],
+    "assignedTo": ""
+  }
+]
