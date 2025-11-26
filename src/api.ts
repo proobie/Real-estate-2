@@ -7,7 +7,7 @@ const isLocalhost = /^(localhost|127\.0\.0\.1)$/i.test(hostname);
 const runtimeOverride = isBrowser ? (window as any).__API_BASE_URL__ : undefined;
 // Optional persistent override for quick testing without rebuild. Set via DevTools then reload:
 // localStorage.setItem('API_BASE_URL', 'https://api.example.com')
-const storageOverride = isBrowser ? localStorage.getItem('API_BASE_URL') || undefined : undefined;
+const storageOverride = undefined; // FORCE IGNORE STORAGE for now to fix caching issues
 
 const defaultProdApi = 'https://api.lotliterealestate.com';
 export const API_BASE_URL: string =
