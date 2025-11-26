@@ -6,9 +6,9 @@
     var isLocal = /^(localhost|127\.0\.0\.1)$/i.test(host);
     window.__API_BASE_URL__ = isLocal
       ? 'http://localhost:5000'
-      : 'https://real-estate-2-production.up.railway.app';
+      : 'https://api.lotliterealestate.com';
   } catch (e) {
-    window.__API_BASE_URL__ = 'https://real-estate-2-production.up.railway.app';
+    window.__API_BASE_URL__ = 'https://api.lotliterealestate.com';
   }
 })();
 
