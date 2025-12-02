@@ -914,10 +914,7 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
             value={form.name}
             onChange={handleContactFormChange}
             required
-            disabled={!!user} // Disable if user is logged in
-            className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent ${
-              user ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
           />
         </div>
         <div>
@@ -930,10 +927,7 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
             value={form.phone}
             onChange={handleContactFormChange}
             required
-            disabled={!!user} // Disable if user is logged in
-            className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent ${
-              user ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
           />
         </div>
         <div>

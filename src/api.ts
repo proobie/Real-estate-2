@@ -39,7 +39,8 @@ export async function addLead(lead: any) {
     });
   }
 
-  async function ensureOk(res: Response) {
+  async function ensureOk(res: Response | null) {
+    if (!res) throw new Error('Failed to add lead');
     if (!res.ok) {
       try {
         const data = await res.json();
@@ -51,14 +52,66 @@ export async function addLead(lead: any) {
     try { return await res.json(); } catch { return { ok: true }; }
   }
 
+  async function tryRequest(fn: () => Promise<Response>): Promise<Response | null> {
+    try {
+      const res = await fn();
+      if (res && res.ok) return res;
+      return res;
+    } catch {
+      return null;
+    }
+  }
+
   // Attempt order: current(auth) → current(no-auth) → prod(auth) → prod(no-auth)
   let res: Response | null = null;
-  res = await postWithAuth(API_BASE_URL);
-  if (!res.ok) res = await postNoAuth(API_BASE_URL);
-  if (!res.ok && typeof API_BASE_URL === 'string' && API_BASE_URL.includes('localhost')) {
-    res = await postWithAuth(defaultProdApi);
-    if (!res.ok) res = await postNoAuth(defaultProdApi);
+  res = await tryRequest(() => postWithAuth(API_BASE_URL));
+  if (!res || !res.ok) res = await tryRequest(() => postNoAuth(API_BASE_URL));
+  if ((!res || !res.ok) && typeof API_BASE_URL === 'string' && API_BASE_URL.includes('localhost')) {
+    if (!res || !res.ok) res = await tryRequest(() => postWithAuth(defaultProdApi));
+    if (!res || !res.ok) res = await tryRequest(() => postNoAuth(defaultProdApi));
   }
+
+  // Final fallback: write directly to Supabase 'leads' if HTTP calls failed (useful when local backend is down or CORS blocks)
+  if (!res || !res.ok) {
+    try {
+      const payload = {
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        source: lead.source,
+        type: lead.type,
+        priority: lead.priority,
+        status: lead.status || 'New',
+        assigned_to: lead.assignedTo || null,
+        notes: lead.notes || '',
+        property_id: lead.propertyId || null,
+      };
+      const { data, error } = await supabase.from('leads').insert(payload).select('*').single();
+      if (error) throw error;
+      const transformed = {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        source: data.source,
+        type: data.type,
+        priority: data.priority,
+        status: data.status,
+        assignedTo: data.assigned_to,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at || null,
+        notes: data.notes,
+        communicationLog: data.communication_log || [],
+        reminders: data.reminders || [],
+        propertyId: data.property_id,
+        propertyTitle: lead.propertyTitle || null,
+      };
+      return transformed;
+    } catch {
+      // fall through to generic error
+    }
+  }
+
   return ensureOk(res);
 }
 

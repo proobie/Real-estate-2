@@ -27,7 +27,7 @@ import MobileBottomNav from './components/common/MobileBottomNav';
 import Blogs from "./components/blogs/blogs";
 import BlogDetails from './components/blogs/blogdetails';
 
-const EmployeeDashboard = () => <div>Employee Dashboard (Coming Soon)</div>;
+import EmployeeDashboard from './components/dashboard/admin/employee/EmployeeDashboard';
 
 
 const ProjectDetailsWrapper = () => {
