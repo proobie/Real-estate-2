@@ -1,0 +1,124 @@
+[
+  {
+    "id": "1",
+    "title": "Luxury 3 BHK Apartment in Bandra West",
+    "description": "Premium apartment with sea view, fully furnished, excellent connectivity to BKC and Worli. RERA approved project with clear title and verified ownership.",
+    "price": "45000000",
+    "type": "apartment",
+    "bedrooms": "3",
+    "bathrooms": "3",
+    "area": "1450",
+    "furnishing": "fully-furnished",
+    "possession": "ready-to-move",
+    "parking": "covered",
+    "facing": "north-west",
+    "floor": "12",
+    "totalFloors": "25",
+    "ageOfProperty": "2",
+    "location": {
+      "address": "Linking Road, Near Bandra Station",
+      "city": "Bandra West, Mumbai",
+      "coordinates": {
+        "lat": 0,
+        "lng": 0
+      }
+    },
+    "images": [
+      "/uploads/sample1.jpg"
+    ],
+    "features": [
+      "Sea View",
+      "Swimming Pool",
+      "Gym",
+      "Covered Parking",
+      "24x7 Security"
+    ],
+    "status": "available",
+    "featured": "true",
+    "verified": "true",
+    "reraId": "P51700000123",
+    "agent": {
+      "id": "agent1",
+      "name": "Priya Sharma",
+      "email": "priya@propertyindia.com",
+      "phone": "+91 98765 43210",
+      "photo": "/uploads/agent1.jpg",
+      "specialization": "Mumbai Properties",
+      "experience": 8,
+      "languages": [
+        "Hindi",
+        "English",
+        "Marathi"
+      ],
+      "reraLicense": "MH12345678"
+    },
+    "createdAt": "2025-07-05T08:30:42.656Z",
+    "updatedAt": "2025-07-05T12:46:09.485Z",
+    "projectId": "project2",
+    "highlights": [
+      "RERA APPROVED"
+    ],
+    "listingType": "sale",
+    "bookingAmount": 70000
+  },
+  {
+    "id": "2",
+    "title": "Modern 2 BHK Villa in Gurgaon",
+    "description": "Contemporary villa with private garden and modern amenities.",
+    "price": "28000000",
+    "type": "villa",
+    "bedrooms": "2",
+    "bathrooms": "2",
+    "area": "1200",
+    "furnishing": "semi-furnished",
+    "possession": "ready-to-move",
+    "parking": "covered",
+    "facing": "south",
+    "floor": "1",
+    "totalFloors": "2",
+    "ageOfProperty": "1",
+    "location": {
+      "address": "Sector 45, Golf Course Extension Road",
+      "city": "Gurgaon, Haryana",
+      "coordinates": {
+        "lat": 28.4595,
+        "lng": 77.0266
+      }
+    },
+    "images": [
+      "/uploads/sample2.jpg"
+    ],
+    "features": [
+      "Private Garden",
+      "Modern Kitchen",
+      "Parking",
+      "Security"
+    ],
+    "status": "available",
+    "featured": "true",
+    "verified": "true",
+    "reraId": "P51700000124",
+    "agent": {
+      "id": "agent2",
+      "name": "Rahul Kumar",
+      "email": "rahul@propertyindia.com",
+      "phone": "+91 98765 43211",
+      "photo": "/uploads/agent2.jpg",
+      "specialization": "NCR Properties",
+      "experience": 5,
+      "languages": [
+        "Hindi",
+        "English"
+      ],
+      "reraLicense": "HR12345679"
+    },
+    "createdAt": "2025-07-05T08:30:42.656Z",
+    "updatedAt": "2025-07-17T17:40:46.496Z",
+    "highlights": [],
+    "listingType": "rent",
+    "rentAmount": 5000,
+    "deposit": 54664,
+    "leaseTerm": "546",
+    "maintenance": 65
+  }
+]

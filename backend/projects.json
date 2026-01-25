@@ -1,0 +1,239 @@
+[
+  {
+    "id": "project1",
+    "name": "Prestige Lakeside Habita",
+    "description": "Premium residential project with world-class amenities and stunning lake views in Varthur, Bangalore.",
+    "developer": "Prestige Group",
+    "status": "ongoing",
+    "location": {
+      "address": "Varthur Road, Whitefield",
+      "city": "Bangalore, Karnataka",
+      "coordinates": {
+        "lat": 12.9698,
+        "lng": 77.75
+      }
+    },
+    "images": [
+      "https://images.pexels.com/photos/2462015/pexels-photo-2462015.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/3935350/pexels-photo-3935350.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/2096983/pexels-photo-2096983.jpeg?auto=compress&cs=tinysrgb&w=800"
+    ],
+    "masterPlan": "https://example.com/masterplan1.jpg",
+    "floorPlans": [
+      "https://example.com/floor1.jpg",
+      "https://example.com/floor2.jpg"
+    ],
+    "amenities": [
+      "Swimming Pool",
+      "Fitness Center",
+      "Clubhouse",
+      "Children Play Area",
+      "Jogging Track",
+      "Landscaped Gardens",
+      "Security",
+      "Power Backup"
+    ],
+    "priceRange": {
+      "min": 8500000,
+      "max": 25000000
+    },
+    "unitTypes": [
+      "2 BHK",
+      "3 BHK",
+      "4 BHK",
+      "Penthouse"
+    ],
+    "brochure": "/uploads/1751646445165-brochure.pdf",
+    "completionDate": "2025-12-15",
+    "totalUnits": 450,
+    "availableUnits": 127,
+    "highlights": [
+      "RERA Approved Project",
+      "Award Winning Developer",
+      "Vastu Compliant",
+      "Bank Loan Approved"
+    ],
+    "pricing": [
+      {
+        "type": "2 BHK",
+        "area": 1200,
+        "basePrice": 8500000,
+        "pricePerSqFt": 7083
+      },
+      {
+        "type": "3 BHK",
+        "area": 1450,
+        "basePrice": 14000000,
+        "pricePerSqFt": 9310
+      },
+      {
+        "type": "4 BHK",
+        "area": 1800,
+        "basePrice": 19000000,
+        "pricePerSqFt": 10882
+      },
+      {
+        "type": "Penthouse",
+        "area": 1800,
+        "basePrice": 24000000,
+        "pricePerSqFt": 12051
+      }
+    ]
+  },
+  {
+    "id": "project2",
+    "name": "DLF Privana South",
+    "description": "Ultra-luxury independent floors and villas in the heart of Gurgaon with premium amenities.",
+    "developer": "DLF Limited",
+    "status": "upcoming",
+    "location": {
+      "address": "Sector 76 & 77, Golf Course Extension Road",
+      "city": "Gurgaon, Haryana",
+      "coordinates": {
+        "lat": 28.4595,
+        "lng": 77.0266
+      }
+    },
+    "images": [
+      "https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/2102587/pexels-photo-2102587.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/1643384/pexels-photo-1643384.jpeg?auto=compress&cs=tinysrgb&w=800"
+    ],
+    "masterPlan": "https://example.com/masterplan2.jpg",
+    "floorPlans": [
+      "https://example.com/floor3.jpg",
+      "https://example.com/floor4.jpg"
+    ],
+    "amenities": [
+      "Golf Course View",
+      "Private Elevator",
+      "Terrace Garden",
+      "Home Automation",
+      "Concierge Service",
+      "Spa & Wellness",
+      "Business Center",
+      "Valet Parking"
+    ],
+    "priceRange": {
+      "min": 35000000,
+      "max": 85000000
+    },
+    "unitTypes": [
+      "3 BHK Floor",
+      "4 BHK Floor",
+      "5 BHK Villa"
+    ],
+    "brochure": "https://example.com/brochure2.pdf",
+    "completionDate": "2026-06-30",
+    "totalUnits": 180,
+    "availableUnits": 180,
+    "highlights": [
+      "RERA Approved Project",
+      "Award Winning Developer",
+      "Prime Location",
+      "Bank Loan Approved"
+    ],
+    "pricing": [
+      {
+        "type": "3 BHK Floor",
+        "area": 1500,
+        "basePrice": 35000000,
+        "pricePerSqFt": 23333
+      },
+      {
+        "type": "4 BHK Floor",
+        "area": 1800,
+        "basePrice": 50000000,
+        "pricePerSqFt": 27777
+      },
+      {
+        "type": "5 BHK Villa",
+        "area": 2500,
+        "basePrice": 85000000,
+        "pricePerSqFt": 34000
+      }
+    ]
+  },
+  {
+    "id": "project3",
+    "name": "Lodha World Towers",
+    "description": "Iconic luxury towers in Lower Parel with panoramic city and sea views, world-class amenities.",
+    "developer": "Lodha Group",
+    "status": "ongoing",
+    "location": {
+      "address": "Lower Parel, Senapati Bapat Marg",
+      "city": "Mumbai, Maharashtra",
+      "coordinates": {
+        "lat": 19.0176,
+        "lng": 72.8562
+      }
+    },
+    "images": [
+      "https://images.pexels.com/photos/2581922/pexels-photo-2581922.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/3935351/pexels-photo-3935351.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "https://images.pexels.com/photos/2462015/pexels-photo-2462015.jpeg?auto=compress&cs=tinysrgb&w=800"
+    ],
+    "masterPlan": "https://example.com/masterplan3.jpg",
+    "floorPlans": [
+      "https://example.com/floor5.jpg",
+      "https://example.com/floor6.jpg"
+    ],
+    "amenities": [
+      "Sky Lounge",
+      "Infinity Pool",
+      "Helipad",
+      "Private Theatre",
+      "Wine Cellar",
+      "Cigar Lounge",
+      "Concierge",
+      "Valet Parking"
+    ],
+    "priceRange": {
+      "min": 75000000,
+      "max": 200000000
+    },
+    "unitTypes": [
+      "3 BHK",
+      "4 BHK",
+      "5 BHK",
+      "Penthouse",
+      "2.5 BHK"
+    ],
+    "brochure": "https://example.com/brochure3.pdf",
+    "completionDate": "2025-09-20",
+    "totalUnits": 320,
+    "availableUnits": 89,
+    "highlights": [
+      "RERA Approved Project",
+      "Award Winning Developer",
+      "Smart Home Features",
+      "Bank Loan Approved"
+    ],
+    "pricing": [
+      {
+        "type": "3 BHK",
+        "area": 1500,
+        "basePrice": 75000000,
+        "pricePerSqFt": 50000
+      },
+      {
+        "type": "4 BHK",
+        "area": 1800,
+        "basePrice": 120000000,
+        "pricePerSqFt": 66666
+      },
+      {
+        "type": "5 BHK",
+        "area": 2200,
+        "basePrice": 160000000,
+        "pricePerSqFt": 72727
+      },
+      {
+        "type": "Penthouse",
+        "area": 3000,
+        "basePrice": 200000000,
+        "pricePerSqFt": 66666
+      }
+    ]
+  }
+]
