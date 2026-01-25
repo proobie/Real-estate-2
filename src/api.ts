@@ -28,7 +28,19 @@ export async function addLead(lead: any) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(lead),
   });
-  if (!res.ok) throw new Error('Failed to add lead');
+  if (!res.ok) {
+    let msg = 'Failed to add lead';
+    try {
+      const d = await res.json();
+      if (d?.error) msg = d.error;
+      else if (d?.message) msg = d.message;
+      else if (d?.details) msg = d.details;
+    }
+    catch (e) {
+      // ignore parse errors
+    }
+    throw new Error(msg);
+  }
   return res.json();
 } 
 

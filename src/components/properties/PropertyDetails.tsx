@@ -277,17 +277,14 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
         status: contactPurpose === 'site-visit' ? 'Site Visit' : 'New',
         assignedTo: '',
         notes: `${contactPurpose === 'site-visit' ? 'Site Visit Request' : 'Inquiry'} for property: ${property.title} (${property.id})${form.preferredTime ? ' (Preferred Time: ' + form.preferredTime + ')' : ''}${form.message ? ' - ' + form.message : ''}`,
-        propertyId: property.id,
-        propertyTitle: property.title,
-<<<<<<< HEAD
-=======
-        requirements: property.bedrooms > 0 ? {
-          bhk: property.bedrooms,
-          furnishing: property.furnishing,
-          listingType: property.listingType,
-          budget: property.price,
-        } : undefined,
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
+          propertyId: property.id,
+          propertyTitle: property.title,
+          requirements: property.bedrooms > 0 ? {
+            bhk: property.bedrooms,
+            furnishing: property.furnishing,
+            listingType: property.listingType,
+            budget: property.price,
+          } : undefined,
       });
       localStorage.setItem(`lead_submitted_${property.id}`, '1');
       setShowContactForm(false);
