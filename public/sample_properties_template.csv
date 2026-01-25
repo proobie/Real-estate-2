@@ -1,0 +1,6 @@
+ID,Title,Description,Price,Type,Bedrooms,Bathrooms,Area,Address,City,Status,Featured,Agent Name,Agent Email
+1,"Luxury 3 BHK Apartment in Mumbai","Premium apartment with sea view and modern amenities",45000000,apartment,3,3,1450,"Linking Road, Bandra West","Mumbai, Maharashtra",available,Yes,"Priya Sharma","priya@example.com"
+2,"Modern Villa in Gurgaon","Spacious villa with garden and parking",28000000,villa,4,4,2000,"Sector 45, Golf Course Road","Gurgaon, Haryana",available,No,"Rahul Kumar","rahul@example.com"
+3,"Commercial Office Space","Prime location office space for businesses",15000000,office,0,2,800,"Cyber City, DLF Phase 3","Gurgaon, Haryana",available,Yes,"Anita Singh","anita@example.com"
+4,"Budget 2 BHK Flat","Affordable housing in upcoming area",1200000,apartment,2,2,900,"Sector 18, Near Metro","Noida, UP",available,No,"Vikash Gupta","vikash@example.com"
+5,"Independent House with Garden","Family house with compound and parking",3500000,house,3,3,1800,"Civil Lines, Model Town","Delhi",sold,No,"Meera Jain","meera@example.com" 
