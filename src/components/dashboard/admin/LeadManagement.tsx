@@ -17,15 +17,6 @@ interface Lead {
   notes?: string;
   propertyId?: string;
   propertyTitle?: string;
-<<<<<<< HEAD
-=======
-  requirements?: {
-    bhk: number;
-    furnishing: string;
-    listingType: string;
-    budget: number;
-  };
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
 }
 
 const sourceOptions = [
@@ -76,16 +67,6 @@ const LeadManagement: React.FC = () => {
     assignedTo: '',
     notes: '',
     status: 'New',
-<<<<<<< HEAD
-=======
-    propertyId: '',
-    requirements: {
-      bhk: 0,
-      furnishing: '',
-      listingType: '',
-      budget: 0,
-    },
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -112,31 +93,6 @@ const LeadManagement: React.FC = () => {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-<<<<<<< HEAD
-=======
-  const handlePropertyChange = (propertyId: string) => {
-    const property = properties.find(p => p.id === propertyId);
-    if (property) {
-      setForm(prev => ({
-        ...prev,
-        propertyId,
-        requirements: {
-          bhk: property.bedrooms,
-          furnishing: property.furnishing,
-          listingType: property.listingType,
-          budget: property.price,
-        },
-      }));
-    } else {
-      setForm(prev => ({
-        ...prev,
-        propertyId,
-        requirements: { bhk: 0, furnishing: '', listingType: '', budget: 0 },
-      }));
-    }
-  };
-
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
   const handleAddLead = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
@@ -156,11 +112,7 @@ const LeadManagement: React.FC = () => {
       setLeads(prev => [newLead, ...prev]);
       setShowModal(false);
       setForm({
-<<<<<<< HEAD
         name: '', email: '', phone: '', source: 'website', type: 'buyer', priority: 'medium', assignedTo: '', notes: '', status: 'New',
-=======
-        name: '', email: '', phone: '', source: 'website', type: 'buyer', priority: 'medium', assignedTo: '', notes: '', status: 'New', propertyId: '', requirements: { bhk: 0, furnishing: '', listingType: '', budget: 0 },
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
       });
     } catch {
       setFormError('Failed to add lead');
@@ -195,11 +147,6 @@ const LeadManagement: React.FC = () => {
       assignedTo: lead.assignedTo || '',
       notes: lead.notes || '',
       status: lead.status,
-<<<<<<< HEAD
-=======
-      propertyId: lead.propertyId || '',
-      requirements: lead.requirements || { bhk: 0, furnishing: '', listingType: '', budget: 0 },
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
     });
     setShowModal(true);
   };
@@ -224,11 +171,7 @@ const LeadManagement: React.FC = () => {
       setShowModal(false);
       setEditLead(null);
       setForm({
-<<<<<<< HEAD
         name: '', email: '', phone: '', source: 'website', type: 'buyer', priority: 'medium', assignedTo: '', notes: '', status: 'New',
-=======
-        name: '', email: '', phone: '', source: 'website', type: 'buyer', priority: 'medium', assignedTo: '', notes: '', status: 'New', propertyId: '', requirements: { bhk: 0, furnishing: '', listingType: '', budget: 0 },
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
       });
     } catch {
       setFormError('Failed to update lead');
@@ -336,74 +279,6 @@ const LeadManagement: React.FC = () => {
         <h1 className="text-xl md:text-2xl font-bold">Lead Management</h1>
         <button className="px-3 md:px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition" onClick={() => setShowModal(true)}>+ Add Lead</button>
       </div>
-<<<<<<< HEAD
-=======
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-3 rounded-lg">
-              <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-600">Total Leads</p>
-              <p className="text-2xl font-bold text-gray-900">{leads.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="bg-green-100 p-3 rounded-lg">
-              <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-600">New Leads</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {leads.filter(l => l.status === 'New').length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="bg-yellow-100 p-3 rounded-lg">
-              <svg className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-600">In Progress</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {leads.filter(l => ['Contacted', 'Qualified', 'Site Visit', 'Negotiation'].includes(l.status)).length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="bg-purple-100 p-3 rounded-lg">
-              <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-600">Closed Won</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {leads.filter(l => l.status === 'Closed Won').length}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 px-3">
           <div className="bg-white rounded-lg shadow-lg p-5 md:p-8 w-full max-w-lg relative">
@@ -422,31 +297,6 @@ const LeadManagement: React.FC = () => {
                 <label className="block mb-1 font-medium">Phone *</label>
                 <input type="tel" name="phone" value={form.phone} onChange={handleInputChange} className="w-full px-3 py-2 border rounded" required />
               </div>
-<<<<<<< HEAD
-=======
-              <div>
-                <label className="block mb-1 font-medium">Property of Interest</label>
-                <select name="propertyId" value={form.propertyId} onChange={(e) => handlePropertyChange(e.target.value)} className="w-full px-3 py-2 border rounded">
-                  <option value="">Select Property (Optional)</option>
-                  {properties.map(property => (
-                    <option key={property.id} value={property.id}>
-                      {property.title} - {property.location.address}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {form.requirements.bhk > 0 && (
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <h3 className="font-medium text-blue-900 mb-2">Auto-filled Requirements</h3>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div><span className="font-medium">BHK:</span> {form.requirements.bhk}</div>
-                    <div><span className="font-medium">Furnishing:</span> {form.requirements.furnishing}</div>
-                    <div><span className="font-medium">Type:</span> {form.requirements.listingType}</div>
-                    <div><span className="font-medium">Budget:</span> ₹{form.requirements.budget.toLocaleString()}</div>
-                  </div>
-                </div>
-              )}
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <label className="block mb-1 font-medium">Source</label>
@@ -525,27 +375,7 @@ const LeadManagement: React.FC = () => {
                 <div><span className="font-medium">Status:</span> {viewLead.status}</div>
                 <div><span className="font-medium">Assigned To:</span> {viewLead.assignedTo || '-'}</div>
                 <div><span className="font-medium">Created At:</span> {new Date(viewLead.createdAt).toLocaleString('en-IN')}</div>
-<<<<<<< HEAD
                 {viewLead.notes && <div><span className="font-medium">Notes:</span> {viewLead.notes}</div>}
-=======
-                {viewLead.propertyTitle && <div><span className="font-medium">Property:</span> {viewLead.propertyTitle}</div>}
-                <div className="mt-2">
-                  <span className="font-medium">Notes:</span>
-                  <div className="mt-1">
-                    {viewLead.requirements && (
-                      <div className="text-sm text-blue-600 font-medium mb-1">
-                        Requirements: {viewLead.requirements.bhk} BHK • {viewLead.requirements.furnishing} • {viewLead.requirements.listingType} • ₹{viewLead.requirements.budget.toLocaleString()}
-                      </div>
-                    )}
-                    {viewLead.notes && (
-                      <div className="text-sm text-gray-600">{viewLead.notes}</div>
-                    )}
-                    {!viewLead.requirements && !viewLead.notes && (
-                      <span className="text-gray-400 text-sm">No notes or requirements</span>
-                    )}
-                  </div>
-                </div>
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
               </div>
               {/* Communication Log Card */}
               <div className="bg-white rounded-lg shadow p-4">
@@ -636,159 +466,59 @@ const LeadManagement: React.FC = () => {
       ) : error ? (
         <div className="text-red-500">{error}</div>
       ) : (
-<<<<<<< HEAD
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {leads.map((lead) => (
-            <div key={lead.id} className="bg-white border rounded-lg p-4 shadow-sm">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="text-lg font-semibold text-gray-900">{lead.name}</div>
-                  <div className="text-sm text-gray-600">{lead.email} · {lead.phone}</div>
-                  <div className="mt-2 text-sm text-gray-700"><span className="font-medium">Source:</span> {lead.source}</div>
-                  <div className="text-sm text-gray-700"><span className="font-medium">Type:</span> {lead.type}</div>
-                  <div className="text-sm text-gray-700"><span className="font-medium">Priority:</span> {lead.priority}</div>
-                  <div className="text-sm"><span className="font-medium">Status:</span> {lead.status}</div>
-                  <div className="text-sm"><span className="font-medium">Assigned:</span> {lead.assignedTo || '-'}</div>
-                </div>
-                <div className="text-sm text-right">
-                  <div className="text-gray-500">{new Date(lead.createdAt).toLocaleDateString('en-IN')}</div>
-                  <div className="mt-3 flex flex-col space-y-2 items-end">
-                    <button className="px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded" onClick={() => setViewLead(lead)}>View</button>
-                    <button className="px-3 py-1 text-sm bg-green-50 text-green-700 rounded" onClick={() => handleEditLead(lead)}>Edit</button>
-                    <button className="px-3 py-1 text-sm bg-red-50 text-red-700 rounded" onClick={() => handleDeleteLead(lead.id)} disabled={deletingId === lead.id}>{deletingId === lead.id ? 'Deleting...' : 'Delete'}</button>
-=======
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {leads.map((lead) => (
-            <div key={lead.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow duration-200">
-              {/* Card Header */}
-              <div className="p-4 border-b">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">{lead.name}</h3>
-                    <p className="text-sm text-gray-500">{lead.source}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      lead.status === 'New' ? 'bg-blue-100 text-blue-800' :
-                      lead.status === 'Contacted' ? 'bg-yellow-100 text-yellow-800' :
-                      lead.status === 'Qualified' ? 'bg-purple-100 text-purple-800' :
-                      lead.status === 'Site Visit' ? 'bg-indigo-100 text-indigo-800' :
-                      lead.status === 'Negotiation' ? 'bg-orange-100 text-orange-800' :
-                      lead.status === 'Closed Won' ? 'bg-green-100 text-green-800' :
-                      lead.status === 'Closed Lost' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {lead.status}
-                    </span>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      lead.priority === 'high' ? 'bg-red-100 text-red-800' :
-                      lead.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {lead.priority}
-                    </span>
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
-                  </div>
-                </div>
-              </div>
-
-<<<<<<< HEAD
-              <div className="mt-3 border-t pt-3">
-                {lead.propertyId && (
-                  <div className="text-sm">
-                    <span className="font-medium">Property:</span>{' '}
-                    <Link to={`/properties/${lead.propertyId}`} className="text-blue-600 underline hover:text-blue-800" target="_blank">{lead.propertyTitle || lead.propertyId}</Link>
-                  </div>
-                )}
-
-                {getRecommendations(lead).length > 0 && (
-                  <div className="mt-2 text-sm">
-                    <div className="font-medium">Recommendations</div>
-                    <div className="mt-1 space-y-1">
-                      {getRecommendations(lead).map(p => (
-                        <Link key={p.id} to={`/properties/${p.id}`} className="block text-sm text-blue-600 underline" target="_blank">{p.title}</Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-=======
-              {/* Card Body */}
-              <div className="p-4 space-y-3">
-                {/* Contact Info */}
-                <div>
-                  <div className="text-sm text-gray-600">{lead.email}</div>
-                  <div className="text-sm text-gray-600">{lead.phone}</div>
-                </div>
-
-                {/* Type */}
-                <div>
-                  <span className="text-sm font-medium text-gray-700">Type: </span>
-                  <span className="text-sm text-gray-600">{lead.type}</span>
-                </div>
-
-                {/* Assigned To */}
-                {lead.assignedTo && (
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">Assigned: </span>
-                    <span className="text-sm text-gray-600">{lead.assignedTo}</span>
-                  </div>
-                )}
-
-                {/* Requirements */}
-                {lead.requirements && (
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <div className="text-sm font-medium text-blue-900 mb-1">Requirements:</div>
-                    <div className="text-sm text-blue-800">
-                      {lead.requirements.bhk} BHK • {lead.requirements.furnishing} • {lead.requirements.listingType} • ₹{lead.requirements.budget.toLocaleString()}
-                    </div>
-                  </div>
-                )}
-
-                {/* Notes */}
-                {lead.notes && (
-                  <div>
-                    <div className="text-sm font-medium text-gray-700 mb-1">Notes:</div>
-                    <div className="text-sm text-gray-600 line-clamp-2" title={lead.notes}>
-                      {lead.notes}
-                    </div>
-                  </div>
-                )}
-
-                {/* Created Date */}
-                <div className="pt-2 border-t">
-                  <div className="text-xs text-gray-500">
-                    Created: {new Date(lead.createdAt).toLocaleDateString('en-IN')} at {new Date(lead.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Card Footer */}
-              <div className="px-4 py-3 bg-gray-50 border-t flex justify-between items-center">
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setViewLead(lead)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => handleEditLead(lead)}
-                    className="text-green-600 hover:text-green-800 text-sm font-medium"
-                  >
-                    Edit
-                  </button>
-                </div>
-                <button
-                  onClick={() => handleDeleteLead(lead.id)}
-                  disabled={deletingId === lead.id}
-                  className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50"
-                >
-                  {deletingId === lead.id ? 'Deleting...' : 'Delete'}
-                </button>
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
-              </div>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white rounded-lg shadow-sm">
+            <thead>
+              <tr>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Name</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Email</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Phone</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Source</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Type</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Priority</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Status</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Assigned To</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Created At</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Property</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Recs</th>
+                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map((lead) => (
+                <tr key={lead.id} className="border-b text-sm">
+                  <td className="px-3 md:px-4 py-2">{lead.name}</td>
+                  <td className="px-3 md:px-4 py-2">{lead.email}</td>
+                  <td className="px-3 md:px-4 py-2">{lead.phone}</td>
+                  <td className="px-3 md:px-4 py-2">{lead.source}</td>
+                  <td className="px-3 md:px-4 py-2">{lead.type}</td>
+                  <td className="px-3 md:px-4 py-2">{lead.priority}</td>
+                  <td className="px-3 md:px-4 py-2">{lead.status}</td>
+                  <td className="px-3 md:px-4 py-2">{lead.assignedTo}</td>
+                  <td className="px-3 md:px-4 py-2 whitespace-nowrap">{lead.createdAt}</td>
+                  <td className="px-3 md:px-4 py-2">
+                    {lead.propertyId ? (
+                      <Link to={`/properties/${lead.propertyId}`} className="text-blue-600 underline hover:text-blue-800" target="_blank">
+                        {lead.propertyTitle || lead.propertyId}
+                      </Link>
+                    ) : null}
+                  </td>
+                  <td className="px-3 md:px-4 py-2">
+                    {getRecommendations(lead).map(p => (
+                      <Link key={p.id} to={`/properties/${p.id}`} className="block text-sm text-primary underline hover:text-secondary" target="_blank">
+                        {p.title}
+                      </Link>
+                    ))}
+                  </td>
+                  <td className="px-3 md:px-4 py-2 whitespace-nowrap">
+                    <button className="text-blue-600 hover:underline mr-2" onClick={() => setViewLead(lead)}>View</button>
+                    <button className="text-green-600 hover:underline mr-2" onClick={() => handleEditLead(lead)}>Edit</button>
+                    <button className="text-red-600 hover:underline" onClick={() => handleDeleteLead(lead.id)} disabled={deletingId === lead.id}>{deletingId === lead.id ? 'Deleting...' : 'Delete'}</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
