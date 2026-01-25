@@ -586,10 +586,7 @@ app.get('/api/leads', async (req, res) => {
         communicationLog: l.communication_log || [],
         reminders: l.reminders || [],
         propertyId: l.property_id,
-<<<<<<< HEAD
-=======
         requirements: l.requirements,
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
     })));
 });
 // @ts-ignore
@@ -609,13 +606,9 @@ app.post('/api/leads', async (req, res) => {
         reminders: [],
         property_id: d.propertyId || null,
     };
-<<<<<<< HEAD
-=======
     
     // Handle requirements - always include the field
     payload.requirements = (d.requirements && d.requirements.bhk > 0) ? d.requirements : null;
-    
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
     const { data, error } = await exports.supabase.from('leads').insert(payload).select('*').single();
     if (error) {
         console.error('Error adding lead:', error);
@@ -636,10 +629,7 @@ app.post('/api/leads', async (req, res) => {
         communicationLog: data.communication_log || [],
         reminders: data.reminders || [],
         propertyId: data.property_id,
-<<<<<<< HEAD
-=======
         requirements: data.requirements,
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
     });
 });
 // @ts-ignore
@@ -662,10 +652,7 @@ app.get('/api/leads/:id', async (req, res) => {
         communicationLog: data.communication_log || [],
         reminders: data.reminders || [],
         propertyId: data.property_id,
-<<<<<<< HEAD
-=======
         requirements: data.requirements,
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
     });
 });
 // @ts-ignore
