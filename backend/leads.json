@@ -13,6 +13,16 @@
     "notes": "",
     "communicationLog": [],
     "reminders": [],
+<<<<<<< HEAD
     "assignedTo": ""
+=======
+    "assignedTo": "",
+    "requirements": {
+      "bhk": 3,
+      "furnishing": "fully-furnished",
+      "listingType": "sale",
+      "budget": 5000000
+    }
+>>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
   }
 ]

@@ -27,8 +27,13 @@ const PropertyManagement: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterBedrooms, setFilterBedrooms] = useState<string>('all');
+<<<<<<< HEAD
   const [filterFurnishing, setFilterFurnishing] = useState<string>('all');
   const [filterListingType, setFilterListingType] = useState<string>('all');
+=======
+  const [filterListingType, setFilterListingType] = useState<string>('all');
+  const [filterFurnishing, setFilterFurnishing] = useState<string>('all');
+>>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkSuccess, setBulkSuccess] = useState<string | null>(null);
@@ -128,6 +133,7 @@ const PropertyManagement: React.FC = () => {
   };
 
   const filteredProperties = properties.filter(property => {
+<<<<<<< HEAD
     const q = searchQuery.toLowerCase();
     const matchesSearch = property.title.toLowerCase().includes(q) || property.location.city.toLowerCase().includes(q);
     const matchesStatus = filterStatus === 'all' || property.status === filterStatus;
@@ -148,6 +154,18 @@ const PropertyManagement: React.FC = () => {
     const matchesListingType = filterListingType === 'all' || property.listingType === filterListingType;
 
     return matchesSearch && matchesStatus && matchesType && matchesBedrooms && matchesFurnishing && matchesListingType;
+=======
+    const matchesSearch = property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      property.location.address.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || property.status === filterStatus;
+    const matchesType = filterType === 'all' || property.type === filterType;
+    const matchesBedrooms = filterBedrooms === 'all' || 
+      (filterBedrooms === '5' ? property.bedrooms >= 5 : property.bedrooms.toString() === filterBedrooms);
+    const matchesListingType = filterListingType === 'all' || property.listingType === filterListingType;
+    const matchesFurnishing = filterFurnishing === 'all' || property.furnishing.toLowerCase() === filterFurnishing.toLowerCase();
+
+    return matchesSearch && matchesStatus && matchesType && matchesBedrooms && matchesListingType && matchesFurnishing;
+>>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
   });
 
   const formatPrice = (price: number) => {
@@ -319,7 +337,11 @@ const PropertyManagement: React.FC = () => {
               <option value="office">Office</option>
               <option value="shop">Shop</option>
             </select>
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
             <select
               value={filterBedrooms}
               onChange={(e) => setFilterBedrooms(e.target.value)}
@@ -329,6 +351,7 @@ const PropertyManagement: React.FC = () => {
               <option value="1">1 BHK</option>
               <option value="2">2 BHK</option>
               <option value="3">3 BHK</option>
+<<<<<<< HEAD
               <option value="4+">4+ BHK</option>
             </select>
 
@@ -341,6 +364,10 @@ const PropertyManagement: React.FC = () => {
               <option value="furnished">Furnished</option>
               <option value="semi-furnished">Semi-furnished</option>
               <option value="unfurnished">Unfurnished</option>
+=======
+              <option value="4">4 BHK</option>
+              <option value="5">5+ BHK</option>
+>>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
             </select>
 
             <select
@@ -349,8 +376,24 @@ const PropertyManagement: React.FC = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Listings</option>
+<<<<<<< HEAD
               <option value="sale">For Sale</option>
               <option value="rent">For Rent</option>
+=======
+              <option value="sale">Buy</option>
+              <option value="rent">Rent</option>
+            </select>
+
+            <select
+              value={filterFurnishing}
+              onChange={(e) => setFilterFurnishing(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Furnishing</option>
+              <option value="fully-furnished">Fully Furnished</option>
+              <option value="semi-furnished">Semi Furnished</option>
+              <option value="unfurnished">Unfurnished</option>
+>>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
             </select>
           </div>
         </div>
