@@ -17,6 +17,7 @@ interface Lead {
   notes?: string;
   propertyId?: string;
   propertyTitle?: string;
+  requirements?: any;
 }
 
 const sourceOptions = [
@@ -466,59 +467,44 @@ const LeadManagement: React.FC = () => {
       ) : error ? (
         <div className="text-red-500">{error}</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow-sm">
-            <thead>
-              <tr>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Name</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Email</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Phone</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Source</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Type</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Priority</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Status</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Assigned To</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Created At</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Property</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Recs</th>
-                <th className="px-3 md:px-4 py-2 text-left whitespace-nowrap">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((lead) => (
-                <tr key={lead.id} className="border-b text-sm">
-                  <td className="px-3 md:px-4 py-2">{lead.name}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.email}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.phone}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.source}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.type}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.priority}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.status}</td>
-                  <td className="px-3 md:px-4 py-2">{lead.assignedTo}</td>
-                  <td className="px-3 md:px-4 py-2 whitespace-nowrap">{lead.createdAt}</td>
-                  <td className="px-3 md:px-4 py-2">
-                    {lead.propertyId ? (
-                      <Link to={`/properties/${lead.propertyId}`} className="text-blue-600 underline hover:text-blue-800" target="_blank">
-                        {lead.propertyTitle || lead.propertyId}
-                      </Link>
-                    ) : null}
-                  </td>
-                  <td className="px-3 md:px-4 py-2">
-                    {getRecommendations(lead).map(p => (
-                      <Link key={p.id} to={`/properties/${p.id}`} className="block text-sm text-primary underline hover:text-secondary" target="_blank">
-                        {p.title}
-                      </Link>
-                    ))}
-                  </td>
-                  <td className="px-3 md:px-4 py-2 whitespace-nowrap">
-                    <button className="text-blue-600 hover:underline mr-2" onClick={() => setViewLead(lead)}>View</button>
-                    <button className="text-green-600 hover:underline mr-2" onClick={() => handleEditLead(lead)}>Edit</button>
-                    <button className="text-red-600 hover:underline" onClick={() => handleDeleteLead(lead.id)} disabled={deletingId === lead.id}>{deletingId === lead.id ? 'Deleting...' : 'Delete'}</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {leads.map(lead => (
+            <div key={lead.id} className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-lg font-semibold">{lead.name}</div>
+                  <div className="text-sm text-gray-500">{lead.email || '-'} • {lead.phone}</div>
+                </div>
+                <div className="text-sm text-gray-500">{new Date(lead.createdAt).toLocaleDateString()}</div>
+              </div>
+              <div className="mt-3 text-sm text-gray-700">
+                <div><strong>Source:</strong> {lead.source}</div>
+                <div><strong>Type:</strong> {lead.type}</div>
+                <div><strong>Status:</strong> {lead.status}</div>
+                <div><strong>Assigned:</strong> {lead.assignedTo || '-'}</div>
+                {lead.propertyId && (
+                  <div><strong>Property:</strong> <Link to={`/properties/${lead.propertyId}`} className="text-blue-600 underline" target="_blank">{lead.propertyTitle || lead.propertyId}</Link></div>
+                )}
+                {lead.notes && <div className="mt-2 text-sm text-gray-600"><strong>Notes:</strong> {lead.notes}</div>}
+                {lead.requirements && (
+                  <div className="mt-2">
+                    <div className="text-sm font-medium">Requirements</div>
+                    <div className="text-sm text-gray-600">
+                      {lead.requirements.bhk ? `${lead.requirements.bhk} BHK` : ''}
+                      {lead.requirements.listingType ? ` • ${lead.requirements.listingType}` : ''}
+                      {lead.requirements.budget ? ` • ₹${Number(lead.requirements.budget).toLocaleString()}` : ''}
+                      {lead.requirements.furnishing ? ` • ${lead.requirements.furnishing}` : ''}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 flex items-center justify-end space-x-2">
+                <button className="text-blue-600 hover:underline" onClick={() => setViewLead(lead)}>View</button>
+                <button className="text-green-600 hover:underline" onClick={() => handleEditLead(lead)}>Edit</button>
+                <button className="text-red-600 hover:underline" onClick={() => handleDeleteLead(lead.id)} disabled={deletingId === lead.id}>{deletingId === lead.id ? 'Deleting...' : 'Delete'}</button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

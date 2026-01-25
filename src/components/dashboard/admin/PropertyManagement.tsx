@@ -26,6 +26,9 @@ const PropertyManagement: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
+  const [filterBhk, setFilterBhk] = useState<string>('all');
+  const [filterFurnishing, setFilterFurnishing] = useState<string>('all');
+  const [filterListingType, setFilterListingType] = useState<string>('all');
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkSuccess, setBulkSuccess] = useState<string | null>(null);
@@ -129,8 +132,11 @@ const PropertyManagement: React.FC = () => {
       property.location.city.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' || property.status === filterStatus;
     const matchesType = filterType === 'all' || property.type === filterType;
+    const matchesBhk = filterBhk === 'all' || String(property.bedrooms) === filterBhk;
+    const matchesFurnishing = filterFurnishing === 'all' || (property.furnishing || '').toLowerCase() === filterFurnishing;
+    const matchesListing = filterListingType === 'all' || (property.listingType || '').toLowerCase() === filterListingType;
 
-    return matchesSearch && matchesStatus && matchesType;
+    return matchesSearch && matchesStatus && matchesType && matchesBhk && matchesFurnishing && matchesListing;
   });
 
   const formatPrice = (price: number) => {
@@ -301,6 +307,38 @@ const PropertyManagement: React.FC = () => {
               <option value="plot">Plot</option>
               <option value="office">Office</option>
               <option value="shop">Shop</option>
+            </select>
+            
+            <select
+              value={filterBhk}
+              onChange={(e) => setFilterBhk(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All BHK</option>
+              {[...new Set(properties.map(p => String(p.bedrooms)))].sort().map(b => (
+                <option key={b} value={b}>{b} BHK</option>
+              ))}
+            </select>
+
+            <select
+              value={filterFurnishing}
+              onChange={(e) => setFilterFurnishing(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Furnishing</option>
+              <option value="furnished">Furnished</option>
+              <option value="semi-furnished">Semi-furnished</option>
+              <option value="unfurnished">Unfurnished</option>
+            </select>
+
+            <select
+              value={filterListingType}
+              onChange={(e) => setFilterListingType(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Listing</option>
+              <option value="sale">Sale</option>
+              <option value="rent">Rent</option>
             </select>
           </div>
         </div>
