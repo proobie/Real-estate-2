@@ -605,8 +605,11 @@ app.post('/api/leads', async (req, res) => {
         communication_log: [],
         reminders: [],
         property_id: d.propertyId || null,
-        requirements: d.requirements || null,
     };
+    
+    // Handle requirements - always include the field
+    payload.requirements = (d.requirements && d.requirements.bhk > 0) ? d.requirements : null;
+    
     const { data, error } = await exports.supabase.from('leads').insert(payload).select('*').single();
     if (error) {
         console.error('Error adding lead:', error);
