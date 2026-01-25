@@ -680,11 +680,8 @@ app.put('/api/leads/:id', async (req, res) => {
         communicationLog: data.communication_log || [],
         reminders: data.reminders || [],
         propertyId: data.property_id,
-<<<<<<< HEAD
-=======
         requirements: data.requirements,
->>>>>>> 1a336e031d4db71848c2d045e8423055f298940a
-    });
+        });
 });
 // @ts-ignore
 app.delete('/api/leads/:id', async (req, res) => {
