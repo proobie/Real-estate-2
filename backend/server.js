@@ -29,6 +29,11 @@ const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 const supabaseUrl = 'https://vlboszmxhmamsviufucv.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY || '';
+if (!supabaseKey) {
+    console.error('FATAL: SUPABASE_SERVICE_KEY is not set. Set the Supabase service role key in the environment as `SUPABASE_SERVICE_KEY`.');
+    // Exit immediately in production to avoid running with incomplete config
+    process.exit(1);
+}
 exports.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
 
 // --- OpenAI setup (optional) ---
@@ -92,25 +97,29 @@ app.get('/api/properties/:id', (req, res) => __awaiter(void 0, void 0, void 0, f
     res.json(data);
 }));
 // Create a new property
-app.post('/api/properties', upload.fields([
-    { name: 'images', maxCount: 10 },
-    { name: 'brochure', maxCount: 1 },
-    { name: 'floorPlan', maxCount: 1 }
-]), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/api/properties', upload.any(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.body;
         const files = req.files;
+        let filesByField = files;
+        if (Array.isArray(files)) {
+            filesByField = {};
+            files.forEach(f => {
+                filesByField[f.fieldname] = filesByField[f.fieldname] || [];
+                filesByField[f.fieldname].push(f);
+            });
+        }
         let images = [];
-        if (files.images) {
-            images = yield Promise.all(files.images.map(f => uploadToSupabaseStorage(f, 'properties/images')));
+        if (filesByField.images) {
+            images = yield Promise.all(filesByField.images.map(f => uploadToSupabaseStorage(f, 'properties/images')));
         }
         let brochure;
-        if (files.brochure && files.brochure[0]) {
-            brochure = yield uploadToSupabaseStorage(files.brochure[0], 'properties/brochures');
+        if (filesByField.brochure && filesByField.brochure[0]) {
+            brochure = yield uploadToSupabaseStorage(filesByField.brochure[0], 'properties/brochures');
         }
         let floorPlan;
-        if (files.floorPlan && files.floorPlan[0]) {
-            floorPlan = yield uploadToSupabaseStorage(files.floorPlan[0], 'properties/floorplans');
+        if (filesByField.floorPlan && filesByField.floorPlan[0]) {
+            floorPlan = yield uploadToSupabaseStorage(filesByField.floorPlan[0], 'properties/floorplans');
         }
         const parseJsonField = (field, defaultValue) => {
             if (!field)
@@ -172,11 +181,7 @@ app.post('/api/properties', upload.fields([
     }
 }));
 // Update a property by ID
-app.put('/api/properties/:id', upload.fields([
-    { name: 'images', maxCount: 10 },
-    { name: 'brochure', maxCount: 1 },
-    { name: 'floorPlan', maxCount: 1 }
-]), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.put('/api/properties/:id', upload.any(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const { id } = req.params;
     const { data: existing, error: fetchError } = yield exports.supabase.from('properties').select('*').eq('id', id).single();
@@ -187,6 +192,14 @@ app.put('/api/properties/:id', upload.fields([
     try {
         const data = req.body;
         const files = req.files;
+        let filesByField = files;
+        if (Array.isArray(files)) {
+            filesByField = {};
+            files.forEach(f => {
+                filesByField[f.fieldname] = filesByField[f.fieldname] || [];
+                filesByField[f.fieldname].push(f);
+            });
+        }
         let finalImages = existing.images || [];
         if (data.existingImages) {
             try {
@@ -194,12 +207,12 @@ app.put('/api/properties/:id', upload.fields([
             }
             catch (_c) { }
         }
-        if (files.images && files.images.length > 0) {
-            const newImageUrls = yield Promise.all(files.images.map(f => uploadToSupabaseStorage(f, 'properties/images')));
+        if (filesByField.images && filesByField.images.length > 0) {
+            const newImageUrls = yield Promise.all(filesByField.images.map(f => uploadToSupabaseStorage(f, 'properties/images')));
             finalImages = [...finalImages, ...newImageUrls];
         }
-        const brochure = ((_a = files.brochure) === null || _a === void 0 ? void 0 : _a[0]) ? yield uploadToSupabaseStorage(files.brochure[0], 'properties/brochures') : existing.brochure;
-        const floorPlan = ((_b = files.floorPlan) === null || _b === void 0 ? void 0 : _b[0]) ? yield uploadToSupabaseStorage(files.floorPlan[0], 'properties/floorplans') : existing.floorPlan;
+        const brochure = ((_a = filesByField.brochure) === null || _a === void 0 ? void 0 : _a[0]) ? yield uploadToSupabaseStorage(filesByField.brochure[0], 'properties/brochures') : existing.brochure;
+        const floorPlan = ((_b = filesByField.floorPlan) === null || _b === void 0 ? void 0 : _b[0]) ? yield uploadToSupabaseStorage(filesByField.floorPlan[0], 'properties/floorplans') : existing.floorPlan;
         const updateData = {};
         const stringFields = ['title', 'description', 'type', 'furnishing', 'possession', 'parking', 'facing', 'status', 'reraId', 'listingType', 'leaseTerm', 'availableFrom'];
         stringFields.forEach(field => {
@@ -609,28 +622,45 @@ app.post('/api/leads', async (req, res) => {
     
     // Handle requirements - always include the field
     payload.requirements = (d.requirements && d.requirements.bhk > 0) ? d.requirements : null;
-    const { data, error } = await exports.supabase.from('leads').insert(payload).select('*').single();
-    if (error) {
-        console.error('Error adding lead:', error);
-        return res.status(500).json({ error: error.message });
+
+    // Basic validation
+    if (!payload.name && !payload.phone && !payload.email) {
+        return res.status(400).json({ error: 'name, phone or email required' });
     }
-    return res.status(201).json({
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        source: data.source,
-        type: data.type,
-        priority: data.priority,
-        status: data.status,
-        assignedTo: data.assigned_to,
-        createdAt: data.created_at,
-        notes: data.notes,
-        communicationLog: data.communication_log || [],
-        reminders: data.reminders || [],
-        propertyId: data.property_id,
-        requirements: data.requirements,
-    });
+
+    // Prepare sanitized payload for insert - remove undefined fields
+    const insertPayload = Object.assign({}, payload);
+    if (insertPayload.requirements === null)
+        delete insertPayload.requirements;
+
+    try {
+        const { data, error } = await exports.supabase.from('leads').insert(insertPayload).select('*').single();
+        if (error) {
+            console.error('Supabase insert error for lead:', JSON.stringify(error));
+            return res.status(502).json({ error: 'Failed to add lead to database', details: error.message || error });
+        }
+        return res.status(201).json({
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            source: data.source,
+            type: data.type,
+            priority: data.priority,
+            status: data.status,
+            assignedTo: data.assigned_to,
+            createdAt: data.created_at,
+            notes: data.notes,
+            communicationLog: data.communication_log || [],
+            reminders: data.reminders || [],
+            propertyId: data.property_id,
+            requirements: data.requirements,
+        });
+    }
+    catch (err) {
+        console.error('Unexpected error inserting lead into Supabase:', err && err.stack ? err.stack : err);
+        return res.status(500).json({ error: 'Internal server error while adding lead' });
+    }
 });
 // @ts-ignore
 app.get('/api/leads/:id', async (req, res) => {
@@ -1023,6 +1053,20 @@ Rules:
 });
 
 // Start server
+// Multer error handler - return clearer message for unexpected file fields
+app.use((err, req, res, next) => {
+    try {
+        if (err && (err.name === 'MulterError' || err.code === 'LIMIT_UNEXPECTED_FILE')) {
+            console.error('Multer error:', err && err.message ? err.message : err);
+            return res.status(400).json({ error: 'File upload failed', details: err && err.message ? err.message : String(err) });
+        }
+    }
+    catch (e) {
+        // fall through to default handler
+    }
+    return next(err);
+});
+
 app.listen(PORT, () => {
     console.log(`Backend server running on http://localhost:${PORT}`);
 });
