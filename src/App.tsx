@@ -16,6 +16,7 @@ import TestimonialSection from './components/common/TestimonialSection';
 import HomePage from './components/home/HomePage';
 import PropertyDetails from './components/properties/PropertyDetails';
 import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import Seo from './components/common/Seo';
 import ProjectDetails from './components/projects/ProjectDetails';
 import { Project } from './types';
 import SearchResults from './components/properties/SearchResults';
@@ -112,6 +113,7 @@ function App() {
       <PropertyProvider>
         <ProjectProvider>
           <BrowserRouter>
+            <Seo />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginForm />} />

@@ -5,6 +5,7 @@ import PropertyCard from './PropertyCard';
 import Fuse from 'fuse.js';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
+import Seo from '../common/Seo';
 
 const bedroomOptions = [1, 2, 3, 4, 5];
 const propertyTypes = ['1bhk', '2bhk', '3bhk'];
@@ -127,6 +128,7 @@ const SearchResults: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Seo title={query ? `Search: ${query}` : 'Properties'} description={query ? `Search results for ${query}` : 'Browse properties available on Lotlite'} url={`${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}${location.pathname}${location.search}`} />
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col lg:flex-row gap-6">

@@ -4,6 +4,7 @@ import { Project } from '../../types';
 import ProjectCard from './ProjectCard';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
+import Seo from '../common/Seo';
 
 const ProjectsList: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -85,6 +86,7 @@ const ProjectsList: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Seo title={`Projects | Lotlite`} description={`Browse projects listed on Lotlite`} url={`${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}/projects`} />
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col lg:flex-row gap-6">

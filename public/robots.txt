@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /client
+Disallow: /employee
+Allow: /
+Sitemap: https://lotliterealestate.com/sitemap.xml

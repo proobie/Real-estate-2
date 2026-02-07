@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../common/Header";
 import Footer from "../common/Footer";
 import { supabase } from "../../supabaseClient";
+import Seo from '../common/Seo';
 
 
 interface Blog {
@@ -101,6 +102,7 @@ const Blogs: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      <Seo title={`Blogs | Lotlite`} description={`Real estate guides and insights from Lotlite`} url={`${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}/blogs`} />
       <Header />
 
       <main
