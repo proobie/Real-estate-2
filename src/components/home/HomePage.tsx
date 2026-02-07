@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import Header from '../common/Header';
+import Seo from '../common/Seo';
 import Hero from './Hero';
 import FeaturedProperties from '../properties/FeaturedProperties';
 import FeaturedProjects from '../projects/FeaturedProjects';
@@ -33,6 +34,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
+      <Seo />
       <Header />
       <main>
         <Hero />

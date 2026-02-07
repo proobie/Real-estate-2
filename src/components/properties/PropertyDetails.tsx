@@ -12,6 +12,7 @@ import { addLead, API_BASE_URL } from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../supabaseClient';
 import Footer from '../common/Footer';
+import Seo from '../common/Seo';
 
 const PropertyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -181,6 +182,9 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
     return undefined;
   })();
 
+  const pageUrl = `${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}/properties/${property.id}`;
+  const pageImage = (property.images && property.images.length > 0) ? property.images[0] : undefined;
+
 
 
   const formatPrice = (price: number) => {
@@ -217,6 +221,8 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
       prev === 0 ? property.images.length - 1 : prev - 1
     );
   };
+
+  // inject SEO meta in the final render below
 
   const handleSave = () => {
     setIsSaved(!isSaved);
@@ -298,6 +304,7 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Seo title={property.title} description={property.description || undefined} image={pageImage} url={pageUrl} type="product" />
       {/* Header */}
       <div className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
