@@ -3,6 +3,7 @@ import { useProperties } from '../../contexts/PropertyContext';
 import { Property } from '../../types';
 import PropertyCard from './PropertyCard';
 import { useNavigate } from 'react-router-dom';
+import { buildPropertyUrl, buildSearchUrl } from '../../utils/urlUtils';
 
 interface FeaturedPropertiesProps {
   onViewDetails?: (property: Property) => void;
@@ -28,7 +29,7 @@ const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({ onViewDetails }
   };
 
   const handleViewDetails = (property: Property) => {
-    navigate(`/properties/${property.id}`);
+    navigate(buildPropertyUrl(property));
   };
 
   if (loading) return <div>Loading featured properties...</div>;
@@ -55,7 +56,7 @@ const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({ onViewDetails }
                 onSave={handleSaveProperty}
                 onShare={handleShareProperty}
                 onContact={handleContactAgent}
-                onViewDetails={() => navigate(`/properties/${property.id}`)}
+                onViewDetails={() => navigate(buildPropertyUrl(property))}
               />
             ))}
           </div>
@@ -74,7 +75,7 @@ const FeaturedProperties: React.FC<FeaturedPropertiesProps> = ({ onViewDetails }
 
         <div className="text-center mt-12">
           <button
-            onClick={() => navigate('/search')}
+            onClick={() => navigate(buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' }))}
             className="bg-[#E63946] hover:bg-[#d12d3a] text-white font-semibold py-3 px-8 rounded-lg transition-colors"
           >
             View All Properties

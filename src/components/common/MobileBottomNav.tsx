@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutGrid, Home, Building2, Calendar, UserCircle } from 'lucide-react';
+import { buildSearchUrl } from '../../utils/urlUtils';
 
 const MobileBottomNav: React.FC = () => {
   const navigate = useNavigate();
@@ -9,10 +10,10 @@ const MobileBottomNav: React.FC = () => {
     navigate('/', { state: { scrollTo: 'featured-properties' } });
   };
   const goBuy = () => {
-    navigate('/search?ltype=sale');
+    navigate(buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' }));
   };
   const goRent = () => {
-    navigate('/search?ltype=rent');
+    navigate(buildSearchUrl({ city: 'pune', location: 'all', listingType: 'rent' }));
   };
   const goNewProjects = () => {
     navigate('/projects');

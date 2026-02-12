@@ -15,7 +15,7 @@ import ServiceSection from './components/common/ServiceSection';
 import TestimonialSection from './components/common/TestimonialSection';
 import HomePage from './components/home/HomePage';
 import PropertyDetails from './components/properties/PropertyDetails';
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom';
 import Seo from './components/common/Seo';
 import ProjectDetails from './components/projects/ProjectDetails';
 import { Project } from './types';
@@ -27,12 +27,14 @@ import ProjectsList from './components/projects/ProjectsList';
 import MobileBottomNav from './components/common/MobileBottomNav';
 import Blogs from "./components/blogs/blogs";
 import BlogDetails from './components/blogs/blogdetails';
+import { buildProjectUrl, buildPropertyUrl, parseSlugId } from './utils/urlUtils';
 
 const EmployeeDashboard = () => <div>Employee Dashboard (Coming Soon)</div>;
 
 
-const ProjectDetailsWrapper = () => {
-  const { id } = useParams<{ id: string }>();
+const ProjectDetailsWrapper = ({ projectId }: { projectId?: string }) => {
+  const { id: paramId } = useParams<{ id: string }>();
+  const id = projectId || paramId;
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,6 +109,70 @@ const ProjectDetailsWrapper = () => {
   return <ProjectDetails project={project} onBack={() => navigate('/')} />;
 };
 
+const ProjectSlugRoute = () => {
+  const { slugId } = useParams<{ slugId: string }>();
+  const projectId = parseSlugId(slugId);
+  return <ProjectDetailsWrapper projectId={projectId} />;
+};
+
+const ProjectLegacyRoute = () => {
+  const { id } = useParams<{ id: string }>();
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchAndRedirect = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/projects/${id}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const location = data.location && typeof data.location === 'string'
+          ? JSON.parse(data.location)
+          : data.location;
+        setRedirectTo(buildProjectUrl({ ...data, location }));
+      } catch {
+        // fall through to legacy view
+      }
+    };
+    fetchAndRedirect();
+  }, [id]);
+
+  if (redirectTo) return <Navigate to={redirectTo} replace />;
+  return <ProjectDetailsWrapper projectId={id} />;
+};
+
+const PropertySlugRoute = () => {
+  const { slugId } = useParams<{ slugId: string }>();
+  const propertyId = parseSlugId(slugId);
+  return <PropertyDetails propertyId={propertyId} />;
+};
+
+const PropertyLegacyRoute = () => {
+  const { id } = useParams<{ id: string }>();
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchAndRedirect = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/properties/${id}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const location = data.location && typeof data.location === 'string'
+          ? JSON.parse(data.location)
+          : data.location;
+        setRedirectTo(buildPropertyUrl({ ...data, location }));
+      } catch {
+        // fall through to legacy view
+      }
+    };
+    fetchAndRedirect();
+  }, [id]);
+
+  if (redirectTo) return <Navigate to={redirectTo} replace />;
+  return <PropertyDetails propertyId={id} />;
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -117,13 +183,19 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginForm />} />
-              <Route path="/properties/:id" element={<PropertyDetails />} />
+              <Route path="/properties/:id" element={<PropertyLegacyRoute />} />
               <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
               <Route path="/employee" element={<ProtectedRoute allowedRoles={['employee']}><EmployeeDashboard /></ProtectedRoute>} />
               <Route path="/client" element={<ProtectedRoute allowedRoles={['client']}><ClientDashboard /></ProtectedRoute>} />
-              <Route path="/projects/:id" element={<ProjectDetailsWrapper />} />
+              <Route path="/projects/:id" element={<ProjectLegacyRoute />} />
               <Route path="/projects" element={<ProjectsList />} />
+              <Route path="/:city/:location/projects" element={<ProjectsList />} />
               <Route path="/search" element={<SearchResults />} />
+              <Route path="/:city/:location/sale" element={<SearchResults />} />
+              <Route path="/:city/:location/buy" element={<SearchResults />} />
+              <Route path="/:city/:location/rent" element={<SearchResults />} />
+              <Route path="/property/:city/:location/:slugId" element={<PropertySlugRoute />} />
+              <Route path="/project/:city/:location/:slugId" element={<ProjectSlugRoute />} />
               <Route path="/blogs" element={<Blogs />} />
               <Route path="/blogs/:id" element={<BlogDetails />} />
               {/* Add other routes as needed */}

@@ -23,7 +23,7 @@ if (isBrowser && isLocalhost && !envBase && !runtimeOverride && !storageOverride
 }
 
 export async function addLead(lead: any) {
-  const res = await fetch(`${API_BASE_URL}/api/leads`, {
+  const res = await fetch(`${API_BASE_URL}/api/leads/public`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(lead),

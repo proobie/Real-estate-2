@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../../api';
 import { Project } from '../../types';
 import ProjectCard from './ProjectCard';
@@ -16,7 +17,10 @@ const ProjectsList: React.FC = () => {
   const [minPrice, setMinPrice] = useState<number | ''>('');
   const [maxPrice, setMaxPrice] = useState<number | ''>('');
   const [unitType, setUnitType] = useState<string>('');
+  const [developer, setDeveloper] = useState<string>('');
   const [sort, setSort] = useState<'relevant' | 'priceLow' | 'priceHigh' | 'newest'>('relevant');
+
+  const location = useLocation();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -54,8 +58,31 @@ const ProjectsList: React.FC = () => {
     fetchProjects();
   }, []);
 
+  // read developer from query param (e.g. /projects?developer=Godrej)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const dev = params.get('developer') || '';
+    if (dev) setDeveloper(dev);
+  }, [location.search]);
+
   const filtered = useMemo(() => {
+    const devParam = developer ? developer.toLowerCase().trim() : '';
+    const matchesDeveloper = (projDev: any) => {
+      if (!devParam) return true;
+      if (!projDev) return false;
+      const d = String(projDev).toLowerCase();
+      // flexible matching: include if project developer contains the param token
+      if (d.includes(devParam)) return true;
+      // handle common variations/abbreviations
+      if (devParam.includes('godrej') && d.includes('godrej')) return true;
+      if (devParam.includes('vtp') && d.includes('vtp')) return true;
+      if (devParam.includes('kolte') && d.includes('kolte')) return true;
+      if (devParam.includes('paranjape') && d.includes('paranjape')) return true;
+      return false;
+    };
+
     return projects.filter(p => {
+      if (!matchesDeveloper(p.developer)) return false;
       if (status && p.status !== status) return false;
       const min = (p.priceRange as any)?.min ? Number((p.priceRange as any).min) : undefined;
       const max = (p.priceRange as any)?.max ? Number((p.priceRange as any).max) : undefined;
@@ -64,7 +91,7 @@ const ProjectsList: React.FC = () => {
       if (unitType && !(p.unitTypes || []).map((s: string) => s.toLowerCase()).includes(unitType.toLowerCase())) return false;
       return true;
     });
-  }, [projects, status, minPrice, maxPrice, unitType]);
+  }, [projects, status, minPrice, maxPrice, unitType, developer]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -86,7 +113,7 @@ const ProjectsList: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Seo title={`Projects | Lotlite`} description={`Browse projects listed on Lotlite`} url={`${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}/projects`} />
+      <Seo title={`Projects | Lotlite`} description={`Browse projects listed on Lotlite`} url={`${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}${location.pathname}${location.search}`} />
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col lg:flex-row gap-6">

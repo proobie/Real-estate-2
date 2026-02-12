@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { buildPropertyUrl } from '../../utils/urlUtils';
 import { Heart, MapPin, Bed, Bath, Square, Camera, Share2 } from 'lucide-react';
 import { Property, Agent } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
@@ -25,6 +27,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { user } = useAuth();
   const [fallbackAgent, setFallbackAgent] = useState<Agent | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -88,7 +91,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   };
 
   const handleViewDetails = () => {
-    onViewDetails?.(property);
+    if (onViewDetails) {
+      onViewDetails(property);
+      return;
+    }
+    navigate(buildPropertyUrl(property));
   };
 
   const formatPrice = (price: number) => {

@@ -3,6 +3,7 @@ import { Search, MapPin, Home, Shield, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useProperties } from '../../contexts/PropertyContext';
 import Fuse from 'fuse.js';
+import { buildSearchUrl } from '../../utils/urlUtils';
 
 const Hero: React.FC = () => {
   const [searchType, setSearchType] = useState<'buy' | 'rent' | 'pg'>('buy');
@@ -58,12 +59,16 @@ const Hero: React.FC = () => {
     }
 
     const params = new URLSearchParams();
-    if (location) params.set('loc', location);
     if (propertyType && propertyType !== 'all') params.set('type', propertyType);
     if (minPrice) params.set('minPrice', minPrice);
     if (maxPrice) params.set('maxPrice', maxPrice);
-    params.set('ltype', searchType === 'buy' ? 'sale' : 'rent');
-    navigate(`/search?${params.toString()}`);
+    const baseUrl = buildSearchUrl({
+      city: 'pune',
+      location: location || 'all',
+      listingType: searchType === 'buy' ? 'sale' : 'rent'
+    });
+    const queryString = params.toString();
+    navigate(queryString ? `${baseUrl}?${queryString}` : baseUrl);
   };
 
   return (
@@ -257,7 +262,7 @@ const Hero: React.FC = () => {
             <div className="text-center">
               <button
                 type="button"
-                onClick={() => navigate('/search?advanced=true')}
+                onClick={() => navigate(`${buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' })}?advanced=true`)}
                 className="text-[#1D3557] hover:text-[#0f2746] font-medium text-xs md:text-sm underline"
               >
                 Advanced Search Options (Furnishing, Parking, Possession)

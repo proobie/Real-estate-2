@@ -3,6 +3,7 @@ import ProjectCard from './ProjectCard';
 import { Project } from '../../types';
 import { API_BASE_URL } from '../../api';
 import { useNavigate } from 'react-router-dom';
+import { buildProjectUrl } from '../../utils/urlUtils';
 
 interface FeaturedProjectsProps {
   onViewDetails?: (project: Project) => void;
@@ -65,7 +66,11 @@ const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ onViewDetails }) =>
   }, []);
 
   const handleViewDetails = (project: Project) => {
-    onViewDetails?.(project);
+    if (onViewDetails) {
+      onViewDetails(project);
+      return;
+    }
+    navigate(buildProjectUrl(project));
   };
 
   const handleDownloadBrochure = (project: Project) => {
@@ -90,7 +95,7 @@ const FeaturedProjects: React.FC<FeaturedProjectsProps> = ({ onViewDetails }) =>
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project) => (
+          {projects.slice(0, 6).map((project) => (
             <ProjectCard
               key={project.id}
               project={project}

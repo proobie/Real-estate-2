@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useProperties } from '../../contexts/PropertyContext';
 import PropertyCard from './PropertyCard';
 import Fuse from 'fuse.js';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 import Seo from '../common/Seo';
+import { buildPropertyUrl, cityFromPath, listingTypeFromPath, locationFromPath } from '../../utils/urlUtils';
 
 const bedroomOptions = [1, 2, 3, 4, 5];
 const propertyTypes = ['1bhk', '2bhk', '3bhk'];
@@ -14,13 +15,15 @@ const furnishingOptions = ['unfurnished', 'semi-furnished', 'furnished'];
 const SearchResults: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { city, location: pathLocation, listingType: pathListingType } = useParams<{ city?: string; location?: string; listingType?: string }>();
   const { properties, loading, error } = useProperties();
 
   const params = new URLSearchParams(location.search);
   const query = params.get('q') || '';
-  const queryLocation = params.get('loc') || '';
+  const queryLocation = params.get('loc') || locationFromPath(pathLocation);
+  const queryCity = cityFromPath(city);
   const queryType = (params.get('type') || '').toLowerCase();
-  const queryListingType = params.get('ltype') as 'sale' | 'rent' | null;
+  const queryListingType = (params.get('ltype') as 'sale' | 'rent' | null) || listingTypeFromPath(pathListingType);
   const queryMinPrice = params.get('minPrice');
   const queryMaxPrice = params.get('maxPrice');
 
@@ -48,9 +51,13 @@ const SearchResults: React.FC = () => {
     return searched.filter(p => {
       const effectiveListingType = listingType || queryListingType || '';
       if (effectiveListingType && p.listingType !== effectiveListingType) return false;
+      const cityMatch = queryCity
+        ? (p.location?.city || '').toLowerCase().includes(queryCity.toLowerCase())
+        : true;
+      if (!cityMatch) return false;
       const locationMatch = queryLocation
-        ? (p.location?.city || '').toLowerCase().includes(queryLocation.toLowerCase()) ||
-        (p.location?.address || '').toLowerCase().includes(queryLocation.toLowerCase())
+        ? (p.location?.address || '').toLowerCase().includes(queryLocation.toLowerCase()) ||
+        (p.location?.city || '').toLowerCase().includes(queryLocation.toLowerCase())
         : true;
       if (!locationMatch) return false;
       // Map propertyType filters to bedrooms when possible, else fallback to type contains
@@ -246,7 +253,7 @@ const SearchResults: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sorted.map(p => (
-                <PropertyCard key={p.id} property={p} onViewDetails={() => navigate(`/properties/${p.id}`)} />
+                <PropertyCard key={p.id} property={p} onViewDetails={() => navigate(buildPropertyUrl(p))} />
               ))}
             </div>
           </section>

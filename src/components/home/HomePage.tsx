@@ -10,6 +10,7 @@ import Footer from '../common/Footer';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Project } from '../../types';
+import { buildProjectUrl } from '../../utils/urlUtils';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const HomePage: React.FC = () => {
   }, [location]);
 
   const handleProjectViewDetails = (project: Project) => {
-    navigate(`/projects/${project.id}`);
+    navigate(buildProjectUrl(project));
   };
 
   return (

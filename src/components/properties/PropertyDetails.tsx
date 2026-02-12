@@ -13,9 +13,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../supabaseClient';
 import Footer from '../common/Footer';
 import Seo from '../common/Seo';
+import { buildProjectUrl, buildPropertyUrl } from '../../utils/urlUtils';
 
-const PropertyDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const PropertyDetails: React.FC<{ propertyId?: string }> = ({ propertyId }) => {
+  const { id: paramId } = useParams<{ id: string }>();
+  const id = propertyId || paramId;
   const navigate = useNavigate();
 
   const { fetchProperty } = useProperties();
@@ -182,7 +184,7 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
     return undefined;
   })();
 
-  const pageUrl = `${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}/properties/${property.id}`;
+  const pageUrl = `${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}${buildPropertyUrl(property)}`;
   const pageImage = (property.images && property.images.length > 0) ? property.images[0] : undefined;
 
 
@@ -794,7 +796,7 @@ const [form, setForm] = useState({   name: user?.name || '',   phone: user?.phon
                   </div>
                 </div>
                 <div className="flex items-center space-x-4 mt-2">
-                  <Link to={`/projects/${project.id}`} className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition">View Details</Link>
+                  <Link to={buildProjectUrl(project)} className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition">View Details</Link>
                   <span className="text-gray-500 text-sm">{project.totalUnits} units</span>
                 </div>
               </div>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Building, Calendar, Users, Download, Eye, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { buildProjectUrl } from '../../utils/urlUtils';
 import { Project } from '../../types';
 
 interface ProjectCardProps {
@@ -16,6 +18,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   homeVariant = false,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const navigate = useNavigate();
 
   const formatPrice = (price: number) => {
     if (price >= 10000000) {
@@ -64,7 +67,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   const handleViewDetails = () => {
-    onViewDetails?.(project);
+    if (onViewDetails) {
+      onViewDetails(project);
+      return;
+    }
+    navigate(buildProjectUrl(project));
   };
 
   const handleDownloadBrochure = () => {
@@ -196,7 +203,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* Action Buttons */}
         <div className="flex space-x-2">
           <button
-            onClick={() => onViewDetails(project)}
+            onClick={handleViewDetails}
             className="flex-1 bg-[#E63946] hover:bg-[#d12d3a] text-white font-semibold py-2 px-3 md:px-4 rounded-lg transition-colors"
           >
             View Details

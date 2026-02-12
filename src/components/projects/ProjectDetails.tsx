@@ -9,6 +9,7 @@ import { Project } from '../../types';
 import { supabase } from '../../supabaseClient';
 import Footer from '../common/Footer';
 import Seo from '../common/Seo';
+import { buildProjectUrl } from '../../utils/urlUtils';
 
 interface ProjectDetailsProps {
   project: Project;
@@ -108,7 +109,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Seo title={project.name} description={project.description || undefined} image={project.images?.[0]} url={`${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}/projects/${project.id}`} type="product" />
+      <Seo title={project.name} description={project.description || undefined} image={project.images?.[0]} url={`${(import.meta.env.VITE_SITE_URL || 'https://lotliterealestate.com').replace(/\/$/, '')}${buildProjectUrl(project)}`} type="product" />
       {/* Header */}
       <div className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

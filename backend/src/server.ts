@@ -1158,6 +1158,52 @@ function saveLeadsToDisk() {
 }
 
 // Lead API endpoints
+// Public lead creation (website contact/enquiry)
+app.post('/api/leads/public', async (req: Request, res: Response) => {
+  const d = req.body || {};
+  if (!d.name || !d.phone) {
+    res.status(400).json({ error: 'Name and phone are required.' });
+    return;
+  }
+  const payload = {
+    name: d.name,
+    email: d.email || '',
+    phone: d.phone,
+    source: d.source || 'website',
+    type: d.type || 'buyer',
+    priority: d.priority || 'medium',
+    status: d.status || 'New',
+    assigned_to: null,
+    notes: d.notes || '',
+    communication_log: [],
+    reminders: [],
+    property_id: d.propertyId || null,
+    requirements: d.requirements || null,
+  };
+  const { data, error } = await supabase.from('leads').insert(payload).select('*').single();
+  if (error) {
+    console.error('Error adding public lead:', error);
+    res.status(500).json({ error: error.message });
+    return;
+  }
+  res.status(201).json({
+    id: data.id,
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    source: data.source,
+    type: data.type,
+    priority: data.priority,
+    status: data.status,
+    assignedTo: data.assigned_to,
+    createdAt: data.created_at,
+    notes: data.notes,
+    communicationLog: data.communication_log || [],
+    reminders: data.reminders || [],
+    propertyId: data.property_id,
+  });
+});
+
 // @ts-ignore
 app.get('/api/leads', requirePermission('leads', 'view'), async (_req, res) => {
   const { data, error } = await supabase
@@ -1202,6 +1248,7 @@ app.post('/api/leads', requirePermission('leads', 'create'), async (req, res) =>
     communication_log: [],
     reminders: [],
     property_id: d.propertyId || null,
+    requirements: d.requirements || null,
   };
   const { data, error } = await supabase.from('leads').insert(payload).select('*').single();
   if (error) {

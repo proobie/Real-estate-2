@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Search, Menu, X, Phone, Mail, MapPin, User, Heart, Bell, LogOut, Settings, UserCircle, Home, Building2, Star, LayoutGrid } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Search, Menu, X, Phone, Mail, MapPin, User, Heart, Bell, LogOut, Settings, UserCircle, Home, Building2, Star, LayoutGrid, ChevronDown, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import LotliteLogo from '../../assets/RedLotliteLogo.png';
+import { buildProjectsListUrl, buildSearchUrl } from '../../utils/urlUtils';
+import { addLead } from '../../api';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -10,25 +12,32 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
+  const projectsDropdownCloseTimeout = useRef<number | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: '', phone: '', message: '' });
+  const [contactError, setContactError] = useState<string | null>(null);
+  const [contactSuccess, setContactSuccess] = useState<string | null>(null);
+  const [contactLoading, setContactLoading] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleNewProjectsClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate('/projects');
+    navigate(buildProjectsListUrl({ city: 'pune', location: 'all' }));
   };
 
   const goBuy = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate('/search?ltype=sale');
+    navigate(buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' }));
   };
 
   const goRent = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate('/search?ltype=rent');
+    navigate(buildSearchUrl({ city: 'pune', location: 'all', listingType: 'rent' }));
   };
 
   const goFeaturedProperties = (e?: React.MouseEvent) => {
@@ -54,7 +63,55 @@ const goBlogs = (e?: React.MouseEvent) => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      navigate(buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale', query: searchQuery }));
+    }
+  };
+
+  const openContactModal = () => {
+    setContactForm({
+      name: user?.name || '',
+      phone: user?.phone || '',
+      message: ''
+    });
+    setContactError(null);
+    setContactSuccess(null);
+    setShowContactModal(true);
+  };
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setContactForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactError(null);
+    setContactSuccess(null);
+
+    if (!contactForm.name.trim() || !contactForm.phone.trim()) {
+      setContactError('Name and phone are required.');
+      return;
+    }
+
+    setContactLoading(true);
+    try {
+      await addLead({
+        name: contactForm.name,
+        email: '',
+        phone: contactForm.phone,
+        source: 'website',
+        type: 'buyer',
+        priority: 'medium',
+        status: 'New',
+        assignedTo: '',
+        notes: contactForm.message ? `Contact request: ${contactForm.message}` : 'Contact request from top menu',
+      });
+      setContactSuccess('Thanks! We will contact you shortly.');
+      setContactForm({ name: user?.name || '', phone: user?.phone || '', message: '' });
+    } catch (err: any) {
+      setContactError(err?.message || 'Failed to submit.');
+    } finally {
+      setContactLoading(false);
     }
   };
 
@@ -75,10 +132,7 @@ const goBlogs = (e?: React.MouseEvent) => {
                 <Phone size={14} />
                 <a href="tel:+919011135889" className="hover:underline">+91 9011135889</a>
               </div>
-              <div className="flex items-center space-x-2">
-                <Mail size={14} />
-                <span>contact@lotlitetechnology.com</span>
-              </div>
+              {/* desktop: email removed per request (kept in mobile) */}
               <div className="flex items-center space-x-2">
                 <MapPin size={14} />
                 <span>Pune</span>
@@ -90,6 +144,13 @@ const goBlogs = (e?: React.MouseEvent) => {
               </button>
               <button className="hover:text-secondary-light transition-colors">
                 <Bell size={16} />
+              </button>
+              <button
+                onClick={openContactModal}
+                className="hidden sm:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-1.5 text-xs font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition"
+              >
+                <MessageCircle size={14} />
+                Contact Us
               </button>
               {/* Authentication Section */}
               {isAuthenticated && user ? (
@@ -242,21 +303,101 @@ const goBlogs = (e?: React.MouseEvent) => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex flex-1 items-center justify-center space-x-12">
-            <a href="#" onClick={goBuy} className="text-gray-700 hover:text-secondary font-medium transition-colors">
-              Buy
-            </a>
-            <a href="#" onClick={goRent} className="text-gray-700 hover:text-secondary font-medium transition-colors">
-              Rent
+          <nav className="hidden md:flex flex-1 items-center justify-center space-x-12 md:transition md:duration-300 md:ease-out">
+            <a
+              href="/"
+              onClick={(e) => { e.preventDefault(); navigate('/'); }}
+              className="text-gray-700 hover:text-secondary font-medium transition transform duration-200 hover:-translate-y-0.5 hover:scale-105 border-b-2 border-transparent hover:border-secondary"
+            >
+              Home
             </a>
             <a
-              href="#featured-projects"
-              onClick={handleNewProjectsClick}
-              className="text-gray-700 hover:text-secondary font-medium transition-colors"
+              href="#"
+              onClick={goBuy}
+              className="text-gray-700 hover:text-secondary font-medium transition transform duration-200 hover:-translate-y-0.5 hover:scale-105 border-b-2 border-transparent hover:border-secondary"
             >
-              New Projects
+              Buy
             </a>
-            <a href="#" onClick={goBlogs} className="text-gray-700 hover:text-secondary font-medium transition-colors">
+            <a
+              href="#"
+              onClick={goRent}
+              className="text-gray-700 hover:text-secondary font-medium transition transform duration-200 hover:-translate-y-0.5 hover:scale-105 border-b-2 border-transparent hover:border-secondary"
+            >
+              Rent
+            </a>
+            <div
+              className="relative"
+              onMouseEnter={() => {
+                if (projectsDropdownCloseTimeout.current) {
+                  window.clearTimeout(projectsDropdownCloseTimeout.current);
+                  projectsDropdownCloseTimeout.current = null;
+                }
+                setIsProjectsDropdownOpen(true);
+              }}
+              onMouseLeave={() => {
+                // small delay to avoid flicker when moving between button and dropdown
+                projectsDropdownCloseTimeout.current = window.setTimeout(() => {
+                  setIsProjectsDropdownOpen(false);
+                  projectsDropdownCloseTimeout.current = null;
+                }, 150);
+              }}
+            >
+              <button
+                onClick={(e) => { e.preventDefault(); navigate(buildProjectsListUrl({ city: 'pune', location: 'all' })); }}
+                aria-haspopup="menu"
+                aria-expanded={isProjectsDropdownOpen}
+                className="text-gray-700 hover:text-secondary font-medium transition transform duration-200 hover:-translate-y-0.5 hover:scale-105 border-b-2 border-transparent hover:border-secondary flex items-center gap-2"
+              >
+                <span>New Projects</span>
+                <ChevronDown size={16} className={`text-gray-500 transition-transform duration-200 ${isProjectsDropdownOpen ? 'rotate-180 text-primary' : ''}`} />
+              </button>
+              {/* Desktop-only dropdown - stays open while hovered */}
+              {isProjectsDropdownOpen && (
+                <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-56 bg-white rounded-lg shadow-2xl ring-1 ring-black ring-opacity-5 transform transition-all duration-200 origin-top z-50">
+                  <div className="py-2">
+                    <div className="px-3">
+                      <div className="text-xs text-gray-400 mb-2">Featured Builders</div>
+                      <div className="bg-gradient-to-b from-white via-white to-gray-50 rounded-md p-1 shadow-inner">
+                        <ul className="py-1">
+                          <li>
+                            <button onClick={() => { navigate(buildProjectsListUrl({ city: 'pune', location: 'all', developer: 'Godrej' })); setIsProjectsDropdownOpen(false); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent hover:text-primary rounded-md transition flex items-center gap-3">
+                              <Building2 size={16} className="text-primary" />
+                              <span className="font-medium">Godrej</span>
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={() => { navigate(buildProjectsListUrl({ city: 'pune', location: 'all', developer: 'VTP Realty' })); setIsProjectsDropdownOpen(false); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent hover:text-primary rounded-md transition flex items-center gap-3">
+                              <Building2 size={16} className="text-primary" />
+                              <span className="font-medium">VTP Realty</span>
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={() => { navigate(buildProjectsListUrl({ city: 'pune', location: 'all', developer: 'Kolte Patil' })); setIsProjectsDropdownOpen(false); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent hover:text-primary rounded-md transition flex items-center gap-3">
+                              <Building2 size={16} className="text-primary" />
+                              <span className="font-medium">Kolte Patil</span>
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={() => { navigate(buildProjectsListUrl({ city: 'pune', location: 'all', developer: 'Paranjape' })); setIsProjectsDropdownOpen(false); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent hover:text-primary rounded-md transition flex items-center gap-3">
+                              <Building2 size={16} className="text-primary" />
+                              <span className="font-medium">Paranjape</span>
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div className="mt-2 px-3">
+                      <div className="text-xs text-gray-400">Click a builder to filter projects</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <a
+              href="#"
+              onClick={goBlogs}
+              className="text-gray-700 hover:text-secondary font-medium transition transform duration-200 hover:-translate-y-0.5 hover:scale-105 border-b-2 border-transparent hover:border-secondary"
+            >
               Blogs
             </a>
           </nav>
@@ -397,7 +538,7 @@ const goBlogs = (e?: React.MouseEvent) => {
                     <Star size={18} className="text-primary" />
                   </div>
                 </button>
-                <button onClick={() => navigate('/search')} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
+                <button onClick={() => navigate(buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' }))} className="w-full flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm active:scale-[0.99]">
                   <div className="text-left">
                     <div className="text-base font-semibold text-gray-900">Search Properties</div>
                     <div className="text-xs text-gray-500">Filter by budget, type, location</div>
@@ -488,6 +629,67 @@ const goBlogs = (e?: React.MouseEvent) => {
 
             {/* Drawer Footer */}
             <div className="px-3 py-3 border-t text-xs text-gray-500">© {new Date().getFullYear()} Lotlite</div>
+          </div>
+        </div>
+      )}
+
+      {showContactModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Send Enquiry</h3>
+              <button
+                onClick={() => setShowContactModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <form onSubmit={handleContactSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={contactForm.name}
+                  onChange={handleContactChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={contactForm.phone}
+                  onChange={handleContactChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Message (Optional)</label>
+                <textarea
+                  name="message"
+                  rows={3}
+                  value={contactForm.message}
+                  onChange={handleContactChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
+                  placeholder="Tell us what you are looking for"
+                />
+              </div>
+              {contactError && <div className="text-sm text-red-600">{contactError}</div>}
+              {contactSuccess && <div className="text-sm text-green-600">{contactSuccess}</div>}
+              <button
+                type="submit"
+                disabled={contactLoading}
+                className="w-full rounded-lg bg-primary text-white py-2.5 font-semibold hover:bg-primary-dark transition disabled:opacity-60"
+              >
+                {contactLoading ? 'Sending...' : 'Send Enquiry'}
+              </button>
+            </form>
           </div>
         </div>
       )}

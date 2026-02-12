@@ -574,6 +574,56 @@ function saveLeadsToDisk() {
     fs_1.default.writeFileSync(leadsFilePath, JSON.stringify(leads, null, 2), 'utf-8');
 }
 // Lead API endpoints (Supabase-backed)
+// Public lead creation (website contact/enquiry)
+// @ts-ignore
+app.post('/api/leads/public', async (req, res) => {
+    const d = req.body || {};
+    if (!d.name || !d.phone) {
+        return res.status(400).json({ error: 'Name and phone are required.' });
+    }
+    const payload = {
+        name: d.name,
+        email: d.email || '',
+        phone: d.phone,
+        source: d.source || 'website',
+        type: d.type || 'buyer',
+        priority: d.priority || 'medium',
+        status: d.status || 'New',
+        assigned_to: null,
+        notes: d.notes || '',
+        communication_log: [],
+        reminders: [],
+        property_id: d.propertyId || null,
+        requirements: d.requirements || null,
+    };
+    try {
+        const { data, error } = await exports.supabase.from('leads').insert(payload).select('*').single();
+        if (error) {
+            console.error('Supabase insert error for public lead:', JSON.stringify(error));
+            return res.status(502).json({ error: 'Failed to add lead to database', details: error.message || error });
+        }
+        return res.status(201).json({
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            source: data.source,
+            type: data.type,
+            priority: data.priority,
+            status: data.status,
+            assignedTo: data.assigned_to,
+            createdAt: data.created_at,
+            notes: data.notes,
+            communicationLog: data.communication_log || [],
+            reminders: data.reminders || [],
+            propertyId: data.property_id,
+        });
+    }
+    catch (err) {
+        console.error('Failed to add public lead:', err);
+        return res.status(500).json({ error: 'Failed to add lead to database', details: err.message || String(err) });
+    }
+});
 // @ts-ignore
 app.get('/api/leads', async (req, res) => {
     const { data, error } = await exports.supabase

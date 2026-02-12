@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaRobot, FaTimes } from 'react-icons/fa';
+import { buildProjectUrl, buildPropertyUrl } from '../../utils/urlUtils';
 import { PropertySearchFilters, aiChat, AiMessage } from '../../api';
 
 interface ChatMessage {
@@ -152,7 +153,7 @@ export default function ChatAssistant() {
     const city = item?.location?.city || '';
     const img = (item?.images && item.images[0]) || '';
     const price = type === 'property' ? (item.listingType === 'rent' ? item.rentAmount : item.price) : (item?.priceRange?.min || 0);
-    const link = type === 'property' ? `/properties/${item.id}` : `/projects/${item.id}`;
+    const link = type === 'property' ? buildPropertyUrl(item) : buildProjectUrl(item);
     return (
       <a href={link} className="min-w-[220px] max-w-[220px] bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow flex-shrink-0">
         <div className="h-28 bg-gray-100 overflow-hidden">

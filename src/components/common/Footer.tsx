@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Facebook, Youtube, Instagram, Linkedin } from 'lucide-react';
 import LotliteLogo from '../../assets/WhiteLotliteLogo.png';
+import { buildSearchUrl } from '../../utils/urlUtils';
 
 const Footer: React.FC = () => {
   return (
@@ -33,8 +34,8 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-[#A8DADC]">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="/search?ltype=sale" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Buy Properties</a></li>
-              <li><a href="/search?ltype=rent" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Rent Properties</a></li>
+              <li><a href={buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' })} className="text-[#F1FAEE]/80 hover:text-white transition-colors">Buy Properties</a></li>
+              <li><a href={buildSearchUrl({ city: 'pune', location: 'all', listingType: 'rent' })} className="text-[#F1FAEE]/80 hover:text-white transition-colors">Rent Properties</a></li>
               <li><a href="/projects" className="text-[#F1FAEE]/80 hover:text-white transition-colors">New Projects</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Property Valuation</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Home Loans</a></li>
@@ -46,9 +47,9 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-[#A8DADC]">Property Types</h3>
             <ul className="space-y-2">
-              <li><a href="/search?type=1bhk" className="text-[#F1FAEE]/80 hover:text-white transition-colors">1 BHK Flats</a></li>
-              <li><a href="/search?type=2bhk" className="text-[#F1FAEE]/80 hover:text-white transition-colors">2 BHK Flats</a></li>
-              <li><a href="/search?type=3bhk" className="text-[#F1FAEE]/80 hover:text-white transition-colors">3 BHK Flats</a></li>
+              <li><a href={`${buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' })}?type=1bhk`} className="text-[#F1FAEE]/80 hover:text-white transition-colors">1 BHK Flats</a></li>
+              <li><a href={`${buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' })}?type=2bhk`} className="text-[#F1FAEE]/80 hover:text-white transition-colors">2 BHK Flats</a></li>
+              <li><a href={`${buildSearchUrl({ city: 'pune', location: 'all', listingType: 'sale' })}?type=3bhk`} className="text-[#F1FAEE]/80 hover:text-white transition-colors">3 BHK Flats</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Independent Houses</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Villas & Duplexes</a></li>
               <li><a href="#" className="text-[#F1FAEE]/80 hover:text-white transition-colors">Plots & Agricultural Land</a></li>

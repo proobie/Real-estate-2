@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { API_BASE_URL, authFetch } from '../../../api';
 import { useProperties } from '../../../contexts/PropertyContext';
 import { Link } from 'react-router-dom';
+import { buildPropertyUrl } from '../../../utils/urlUtils';
 
 interface Lead {
   id: string;
@@ -483,7 +484,7 @@ const LeadManagement: React.FC = () => {
                 <div><strong>Status:</strong> {lead.status}</div>
                 <div><strong>Assigned:</strong> {lead.assignedTo || '-'}</div>
                 {lead.propertyId && (
-                  <div><strong>Property:</strong> <Link to={`/properties/${lead.propertyId}`} className="text-blue-600 underline" target="_blank">{lead.propertyTitle || lead.propertyId}</Link></div>
+                  <div><strong>Property:</strong> <Link to={buildPropertyUrl({ id: lead.propertyId, title: lead.propertyTitle || lead.propertyId, location: { city: 'Pune', address: 'All' } } as any)} className="text-blue-600 underline" target="_blank">{lead.propertyTitle || lead.propertyId}</Link></div>
                 )}
                 {lead.notes && <div className="mt-2 text-sm text-gray-600"><strong>Notes:</strong> {lead.notes}</div>}
                 {lead.requirements && (
