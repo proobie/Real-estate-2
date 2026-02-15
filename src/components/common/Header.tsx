@@ -6,11 +6,7 @@ import LotliteLogo from '../../assets/RedLotliteLogo.png';
 import { buildProjectsListUrl, buildSearchUrl } from '../../utils/urlUtils';
 import { addLead } from '../../api';
 
-interface HeaderProps {
-  onSearch?: (query: string) => void;
-}
-
-const Header: React.FC<HeaderProps> = ({ onSearch }) => {
+const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProjectsDropdownOpen, setIsProjectsDropdownOpen] = useState(false);
   const projectsDropdownCloseTimeout = useRef<number | null>(null);
@@ -67,6 +63,7 @@ const goBlogs = (e?: React.MouseEvent) => {
     }
   };
 
+
   const openContactModal = () => {
     setContactForm({
       name: user?.name || '',
@@ -122,156 +119,6 @@ const goBlogs = (e?: React.MouseEvent) => {
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
-      {/* Top Bar */}
-      {/* Desktop Top Bar (unchanged) */}
-      <div className="bg-primary text-white py-2 hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center text-sm">
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <Phone size={14} />
-                <a href="tel:+919011135889" className="hover:underline">+91 9011135889</a>
-              </div>
-              {/* desktop: email removed per request (kept in mobile) */}
-              <div className="flex items-center space-x-2">
-                <MapPin size={14} />
-                <span>Pune</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="hover:text-secondary-light transition-colors">
-                <Heart size={16} />
-              </button>
-              <button className="hover:text-secondary-light transition-colors">
-                <Bell size={16} />
-              </button>
-              <button
-                onClick={openContactModal}
-                className="hidden sm:inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-1.5 text-xs font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition"
-              >
-                <MessageCircle size={14} />
-                Contact Us
-              </button>
-              {/* Authentication Section */}
-              {isAuthenticated && user ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center space-x-2 hover:text-blue-200 transition-colors"
-                  >
-                    {user.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="h-6 w-6 rounded-full border-2 border-white"
-                      />
-                    ) : (
-                      <UserCircle size={20} />
-                    )}
-                    <span className="hidden sm:inline text-sm">{user.name}</span>
-                  </button>
-                  {/* User Dropdown Menu */}
-                  {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                      <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                        <p className="font-medium">{user.name}</p>
-                        <p className="text-xs text-gray-500 capitalize">{user.role}</p>
-                      </div>
-                      <button
-                          onClick={() => {
-                            if (user?.role === 'admin') {
-                              navigate('/admin');
-                            } else if (user?.role === 'employee') {
-                              navigate('/employee');
-                            } else if (user?.role === 'client') {
-                              navigate('/client');
-                            } else {
-                              navigate('/login');
-                            }
-                          }}
-
-                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <Settings size={16} className="mr-2" />
-                        Dashboard
-                      </button>
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <LogOut size={16} className="mr-2" />
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <button
-                  onClick={() => navigate('/login')}
-                  className="flex items-center space-x-1 bg-primary-light hover:bg-primary-dark px-3 py-1 rounded-md transition-colors"
-                >
-                  <User size={16} />
-                  <span className="text-sm font-medium">Login</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* Mobile Top Bar (two rows) */}
-      <div className="bg-primary text-white py-2 md:hidden">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 flex flex-col gap-1">
-          {/* First row: phone and icons */}
-          <div className="flex justify-between items-center text-sm w-full">
-            <div className="flex items-center space-x-2">
-              <Phone size={14} />
-              <a href="tel:+919011135889" className="hover:underline">+91 9011135889</a>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="hover:text-secondary-light transition-colors">
-                <Heart size={16} />
-              </button>
-              <button className="hover:text-secondary-light transition-colors">
-                <Bell size={16} />
-              </button>
-              {isAuthenticated && user ? (
-                <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center hover:text-blue-200 transition-colors"
-                >
-                  {user.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="h-6 w-6 rounded-full border-2 border-white"
-                    />
-                  ) : (
-                    <UserCircle size={20} />
-                  )}
-                </button>
-              ) : (
-                <button
-                  onClick={() => navigate('/login')}
-                  className="flex items-center bg-primary-light hover:bg-primary-dark px-2 py-1 rounded-md transition-colors"
-                >
-                  <User size={16} />
-                </button>
-              )}
-            </div>
-          </div>
-          {/* Second row: email and location */}
-          <div className="flex justify-between items-center text-xs sm:text-sm w-full mt-1">
-            <div className="flex items-center space-x-2">
-              <Mail size={14} />
-              <span>contact@lotlitetechnology.com</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <MapPin size={14} />
-              <span>Pune</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -403,23 +250,74 @@ const goBlogs = (e?: React.MouseEvent) => {
           </nav>
 
 
-          {/* Search Bar */}
-          <div className="hidden lg:block ml-auto">
-            <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                placeholder="Search properties, projects, localities..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-80 pl-4 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
-              />
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-3 ml-4">
+            <button
+              onClick={openContactModal}
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-dark text-white px-4 py-2 text-sm font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition"
+            >
+              <MessageCircle size={16} />
+              Post Property
+            </button>
+            {isAuthenticated && user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5 hover:border-gray-300 transition-colors"
+                >
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="h-7 w-7 rounded-full"
+                    />
+                  ) : (
+                    <UserCircle size={18} />
+                  )}
+                  <span className="text-sm font-medium text-gray-700">{user.name}</span>
+                </button>
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                    <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                      <p className="font-medium">{user.name}</p>
+                      <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (user?.role === 'admin') {
+                          navigate('/admin');
+                        } else if (user?.role === 'employee') {
+                          navigate('/employee');
+                        } else if (user?.role === 'client') {
+                          navigate('/client');
+                        } else {
+                          navigate('/login');
+                        }
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <Settings size={16} className="mr-2" />
+                      Dashboard
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <LogOut size={16} className="mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
               <button
-                type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-white p-2 rounded-md hover:bg-primary-dark transition-colors"
+                onClick={() => navigate('/login')}
+                className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 transition-colors"
               >
-                <Search size={16} />
+                <User size={16} />
+                Login
               </button>
-            </form>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -430,8 +328,6 @@ const goBlogs = (e?: React.MouseEvent) => {
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-
-        {/* Mobile Search (moved inline above) */}
 
         {/* Mobile Quick Links Chips */}
         <div className="md:hidden pb-3 -mt-1">
@@ -637,7 +533,7 @@ const goBlogs = (e?: React.MouseEvent) => {
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Send Enquiry</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Post Property</h3>
               <button
                 onClick={() => setShowContactModal(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -687,7 +583,7 @@ const goBlogs = (e?: React.MouseEvent) => {
                 disabled={contactLoading}
                 className="w-full rounded-lg bg-primary text-white py-2.5 font-semibold hover:bg-primary-dark transition disabled:opacity-60"
               >
-                {contactLoading ? 'Sending...' : 'Send Enquiry'}
+                {contactLoading ? 'Submitting...' : 'Post Property'}
               </button>
             </form>
           </div>
